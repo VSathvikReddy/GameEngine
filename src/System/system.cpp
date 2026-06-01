@@ -25,7 +25,7 @@ void init_glfw(void (*error_function)(int, const char*) ){
 void init_glew(){
     GLenum GLsucess = glewInit();
     if(GLsucess != GLEW_OK){
-        fprintf(stderr, "GLEW Initialization Error: %s\n",glewGetErrorString(GLsucess));
+        fprintf(stderr, "GLEW Initialization Error: %s\n", glewGetErrorString(GLsucess));
         exit(1);
     }
     glEnable(GL_DEPTH_TEST);  
@@ -34,10 +34,10 @@ void init_glew(){
 }
 
 
-WindowContext::WindowContext(const WindowProperties& properties):m_window(properties){
+WindowContext::WindowContext(uint32_t width, uint32_t height, const char* title){
     init_glfw(GLFW_error_callback);
 
-    this->m_native = glfwCreateWindow(properties.width, properties.height, properties.title, NULL, NULL);
+    this->m_native = glfwCreateWindow(width, height, title, NULL, NULL);
 
     if (!m_native){
         fprintf(stderr, "glfw window did not open properly\n");
@@ -90,6 +90,7 @@ void WindowContext::endFrame(){
 
 
     m_keyboard.EndFrame();
+    m_mouse.EndFrame();
 }
 bool WindowContext::isOpen(){
     return !glfwWindowShouldClose(m_native);

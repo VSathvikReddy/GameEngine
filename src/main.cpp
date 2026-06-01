@@ -15,9 +15,12 @@ int main(){
     while(context.isOpen()){
         context.startFrame();
 
-        if(context.getKeyboard().isKeyPressed(Key::W)){
+        if(context.getKeyboard().isKeyPressed(Keyboard::Key::W)){
             std::cout<<"W\n";
         }
+
+        std::cout<<"Mouse pressed at"<<context.getMouse().getPosition().x<<' '<<context.getMouse().getPosition().y<<'\n';
+        
 
 
         context.endFrame();

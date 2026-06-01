@@ -6,13 +6,12 @@ class KeyBind{
 public:
     KeyBind(const char* file);
 
-    Key find(uint32_t id);
+    Keyboard::Key find(uint32_t id);
 
 
-    // The compile-time FNV-1a Hash Algorithm
     constexpr static uint32_t ID(std::string_view str);
 private:
-    std::unordered_map<uint32_t,Key> bindings;
+    std::unordered_map<uint32_t,Keyboard::Key> bindings;
 };
 
 constexpr uint32_t KeyBind::ID(std::string_view str){

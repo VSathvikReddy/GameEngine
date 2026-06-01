@@ -2,7 +2,7 @@
 
 #include "System/mouse.hpp"
 #include "System/window.hpp"
-#include "System/keyboard.hpp"
+#include "System/keyboard_keys.hpp"
 
 #include "System/clock.hpp"
 
@@ -14,7 +14,7 @@ class GLFWwindow;
 
 class WindowContext{
 public:
-    WindowContext(const WindowProperties& properties);
+    WindowContext(uint32_t width = 0, uint32_t height = 0, const char* title = "Default Name");
     ~WindowContext();
 
     friend class Keyboard;

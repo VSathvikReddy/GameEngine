@@ -13,12 +13,12 @@ void Keyboard::EndFrame(){
     m_PreviousKeys = m_CurrentKeys;
 }
 
-bool Keyboard::isKeyHeld(Key key) const {
+bool Keyboard::isKeyHeld(Keyboard::Key key) const {
     return m_CurrentKeys.test(static_cast<size_t>(key));
-}bool Keyboard::isKeyPressed(Key key) const {
+}bool Keyboard::isKeyPressed(Keyboard::Key key) const {
     int k = static_cast<int>(key);
     return m_CurrentKeys.test(k) && !m_PreviousKeys.test(k);
-}bool Keyboard::isKeyReleased(Key key) const {
+}bool Keyboard::isKeyReleased(Keyboard::Key key) const {
     int k = static_cast<int>(key);
     return !m_CurrentKeys.test(k) && m_PreviousKeys.test(k);
 }
@@ -117,7 +117,7 @@ void Keyboard::GLFW_key_callback(GLFWwindow* window, int key,[[maybe_unused]] in
 
 
 
-
+// The compile-time FNV-1a Hash Algorithm
 KeyBind::KeyBind(const char* file){
     std::fstream data(file);
     if(!data.is_open()){
@@ -126,15 +126,15 @@ KeyBind::KeyBind(const char* file){
     }
     std::string a,b,c;
     while((data>>a>>b>>c)){
-        bindings[KeyBind::ID(a)] = StringToKeyMap.at(c);
+        bindings[KeyBind::ID(a)] = Keyboard::StringToKeyMap.at(c);
     }
 }
 
-Key KeyBind::find(uint32_t id){
+Keyboard::Key KeyBind::find(uint32_t id){
     auto ptr = this->bindings.find(id);
     if(ptr == bindings.end()){
         std::cerr<<"Unknow key Action\n";
-        return Key::ERROR;
+        return Keyboard::Key::ERROR;
     }
     return ptr->second;
 }

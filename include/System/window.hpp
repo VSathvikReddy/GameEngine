@@ -4,22 +4,25 @@
 
 struct GLFWwindow;
 
-struct WindowProperties{
-    uint32_t width = 0;
-    uint32_t height = 0;
-    const char* title = "Default Name";
-};
+
 
 class Window{
 public:
-    Window(const WindowProperties& properties);
+    struct Size{
+        uint32_t width = 0;
+        uint32_t height = 0;
+    };
+
+
+    Window() = default;
 
     void setCallbacks(GLFWwindow* native);
-    const WindowProperties& getProperties() const;
+    Size getSize() const;
 private:
-    WindowProperties m_properties;
-
+    Size m_cache_size;
+    void update_size(GLFWwindow* native);
 
     static void GLFW_framebuffer_size_callback(GLFWwindow* window, int width, int height); 
+    static void GLFW_window_size_callback(GLFWwindow* window, int width, int height);
     static void GLFW_window_close_callback(GLFWwindow* window);
 };

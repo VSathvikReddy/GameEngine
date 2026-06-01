@@ -1,11 +1,13 @@
 #pragma once
 
+#include "System/keyboard.hpp"
+
 #include <cstdint>
 #include <string_view>
 #include <unordered_map>
 
-// These values map exactly with GLFW keys
-enum class Key : std::uint16_t {
+// 1. Correctly define the forward-declared enum outside the class
+enum class Keyboard::Key : uint16_t {
     // Printable keys
     Space         = 32,
     Apostrophe    = 39, 
@@ -130,58 +132,58 @@ enum class Key : std::uint16_t {
     ERROR = 0,
 };
 
-// 1. The inline map
-inline const std::unordered_map<std::string_view, Key> StringToKeyMap = {
+
+inline const std::unordered_map<std::string_view, Keyboard::Key> Keyboard::StringToKeyMap = {
     // Printable
-    {"Space", Key::Space}, {"Apostrophe", Key::Apostrophe}, 
-    {"Comma", Key::Comma}, {"Minus", Key::Minus}, 
-    {"Period", Key::Period}, {"Slash", Key::Slash},
+    {"Space", Keyboard::Key::Space}, {"Apostrophe", Keyboard::Key::Apostrophe}, 
+    {"Comma", Keyboard::Key::Comma}, {"Minus", Keyboard::Key::Minus}, 
+    {"Period", Keyboard::Key::Period}, {"Slash", Keyboard::Key::Slash},
     
     // Numbers
-    {"D0", Key::D0}, {"D1", Key::D1}, {"D2", Key::D2}, {"D3", Key::D3}, 
-    {"D4", Key::D4}, {"D5", Key::D5}, {"D6", Key::D6}, {"D7", Key::D7}, 
-    {"D8", Key::D8}, {"D9", Key::D9},
+    {"D0", Keyboard::Key::D0}, {"D1", Keyboard::Key::D1}, {"D2", Keyboard::Key::D2}, {"D3", Keyboard::Key::D3}, 
+    {"D4", Keyboard::Key::D4}, {"D5", Keyboard::Key::D5}, {"D6", Keyboard::Key::D6}, {"D7", Keyboard::Key::D7}, 
+    {"D8", Keyboard::Key::D8}, {"D9", Keyboard::Key::D9},
     
-    {"Semicolon", Key::Semicolon}, {"Equal", Key::Equal},
+    {"Semicolon", Keyboard::Key::Semicolon}, {"Equal", Keyboard::Key::Equal},
     
     // Letters
-    {"A", Key::A}, {"B", Key::B}, {"C", Key::C}, {"D", Key::D}, 
-    {"E", Key::E}, {"F", Key::F}, {"G", Key::G}, {"H", Key::H}, 
-    {"I", Key::I}, {"J", Key::J}, {"K", Key::K}, {"L", Key::L}, 
-    {"M", Key::M}, {"N", Key::N}, {"O", Key::O}, {"P", Key::P}, 
-    {"Q", Key::Q}, {"R", Key::R}, {"S", Key::S}, {"T", Key::T}, 
-    {"U", Key::U}, {"V", Key::V}, {"W", Key::W}, {"X", Key::X}, 
-    {"Y", Key::Y}, {"Z", Key::Z},
+    {"A", Keyboard::Key::A}, {"B", Keyboard::Key::B}, {"C", Keyboard::Key::C}, {"D", Keyboard::Key::D}, 
+    {"E", Keyboard::Key::E}, {"F", Keyboard::Key::F}, {"G", Keyboard::Key::G}, {"H", Keyboard::Key::H}, 
+    {"I", Keyboard::Key::I}, {"J", Keyboard::Key::J}, {"K", Keyboard::Key::K}, {"L", Keyboard::Key::L}, 
+    {"M", Keyboard::Key::M}, {"N", Keyboard::Key::N}, {"O", Keyboard::Key::O}, {"P", Keyboard::Key::P}, 
+    {"Q", Keyboard::Key::Q}, {"R", Keyboard::Key::R}, {"S", Keyboard::Key::S}, {"T", Keyboard::Key::T}, 
+    {"U", Keyboard::Key::U}, {"V", Keyboard::Key::V}, {"W", Keyboard::Key::W}, {"X", Keyboard::Key::X}, 
+    {"Y", Keyboard::Key::Y}, {"Z", Keyboard::Key::Z},
     
     // Punctuation
-    {"LeftBracket", Key::LeftBracket}, {"Backslash", Key::Backslash}, 
-    {"RightBracket", Key::RightBracket}, {"Grave", Key::Grave},
+    {"LeftBracket", Keyboard::Key::LeftBracket}, {"Backslash", Keyboard::Key::Backslash}, 
+    {"RightBracket", Keyboard::Key::RightBracket}, {"Grave", Keyboard::Key::Grave},
     
     // Function keys
-    {"Esc", Key::Esc}, {"Enter", Key::Enter}, {"Tab", Key::Tab}, 
-    {"Backspace", Key::Backspace}, {"Insert", Key::Insert}, 
-    {"Delete", Key::Delete}, {"Right", Key::Right}, {"Left", Key::Left}, 
-    {"Down", Key::Down}, {"Up", Key::Up}, {"PageUp", Key::PageUp}, 
-    {"PageDown", Key::PageDown}, {"Home", Key::Home}, {"End", Key::End}, 
-    {"CapsLock", Key::CapsLock}, {"ScrollLock", Key::ScrollLock}, 
-    {"NumLock", Key::NumLock}, {"PrintScreen", Key::PrintScreen}, 
-    {"Pause", Key::Pause},
+    {"Esc", Keyboard::Key::Esc}, {"Enter", Keyboard::Key::Enter}, {"Tab", Keyboard::Key::Tab}, 
+    {"Backspace", Keyboard::Key::Backspace}, {"Insert", Keyboard::Key::Insert}, 
+    {"Delete", Keyboard::Key::Delete}, {"Right", Keyboard::Key::Right}, {"Left", Keyboard::Key::Left}, 
+    {"Down", Keyboard::Key::Down}, {"Up", Keyboard::Key::Up}, {"PageUp", Keyboard::Key::PageUp}, 
+    {"PageDown", Keyboard::Key::PageDown}, {"Home", Keyboard::Key::Home}, {"End", Keyboard::Key::End}, 
+    {"CapsLock", Keyboard::Key::CapsLock}, {"ScrollLock", Keyboard::Key::ScrollLock}, 
+    {"NumLock", Keyboard::Key::NumLock}, {"PrintScreen", Keyboard::Key::PrintScreen}, 
+    {"Pause", Keyboard::Key::Pause},
     
-    {"F1", Key::F1}, {"F2", Key::F2}, {"F3", Key::F3}, {"F4", Key::F4}, 
-    {"F5", Key::F5}, {"F6", Key::F6}, {"F7", Key::F7}, {"F8", Key::F8}, 
-    {"F9", Key::F9}, {"F10", Key::F10}, {"F11", Key::F11}, {"F12", Key::F12},
+    {"F1", Keyboard::Key::F1}, {"F2", Keyboard::Key::F2}, {"F3", Keyboard::Key::F3}, {"F4", Keyboard::Key::F4}, 
+    {"F5", Keyboard::Key::F5}, {"F6", Keyboard::Key::F6}, {"F7", Keyboard::Key::F7}, {"F8", Keyboard::Key::F8}, 
+    {"F9", Keyboard::Key::F9}, {"F10", Keyboard::Key::F10}, {"F11", Keyboard::Key::F11}, {"F12", Keyboard::Key::F12},
     
     // Numpad
-    {"Kp0", Key::Kp0}, {"Kp1", Key::Kp1}, {"Kp2", Key::Kp2}, {"Kp3", Key::Kp3}, 
-    {"Kp4", Key::Kp4}, {"Kp5", Key::Kp5}, {"Kp6", Key::Kp6}, {"Kp7", Key::Kp7}, 
-    {"Kp8", Key::Kp8}, {"Kp9", Key::Kp9}, {"KpDecimal", Key::KpDecimal}, 
-    {"KpDivide", Key::KpDivide}, {"KpMultiply", Key::KpMultiply}, 
-    {"KpSubtract", Key::KpSubtract}, {"KpAdd", Key::KpAdd}, 
-    {"KpEnter", Key::KpEnter}, {"KpEqual", Key::KpEqual},
+    {"Kp0", Keyboard::Key::Kp0}, {"Kp1", Keyboard::Key::Kp1}, {"Kp2", Keyboard::Key::Kp2}, {"Kp3", Keyboard::Key::Kp3}, 
+    {"Kp4", Keyboard::Key::Kp4}, {"Kp5", Keyboard::Key::Kp5}, {"Kp6", Keyboard::Key::Kp6}, {"Kp7", Keyboard::Key::Kp7}, 
+    {"Kp8", Keyboard::Key::Kp8}, {"Kp9", Keyboard::Key::Kp9}, {"KpDecimal", Keyboard::Key::KpDecimal}, 
+    {"KpDivide", Keyboard::Key::KpDivide}, {"KpMultiply", Keyboard::Key::KpMultiply}, 
+    {"KpSubtract", Keyboard::Key::KpSubtract}, {"KpAdd", Keyboard::Key::KpAdd}, 
+    {"KpEnter", Keyboard::Key::KpEnter}, {"KpEqual", Keyboard::Key::KpEqual},
     
     // Modifiers
-    {"LeftShift", Key::LeftShift}, {"LeftControl", Key::LeftControl}, 
-    {"LeftAlt", Key::LeftAlt}, {"LeftSuper", Key::LeftSuper}, 
-    {"RightShift", Key::RightShift}, {"RightControl", Key::RightControl}, 
-    {"RightAlt", Key::RightAlt}, {"RightSuper", Key::RightSuper}
+    {"LeftShift", Keyboard::Key::LeftShift}, {"LeftControl", Keyboard::Key::LeftControl}, 
+    {"LeftAlt", Keyboard::Key::LeftAlt}, {"LeftSuper", Keyboard::Key::LeftSuper}, 
+    {"RightShift", Keyboard::Key::RightShift}, {"RightControl", Keyboard::Key::RightControl}, 
+    {"RightAlt", Keyboard::Key::RightAlt}, {"RightSuper", Keyboard::Key::RightSuper}
 };

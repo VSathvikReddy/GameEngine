@@ -1,15 +1,15 @@
 #pragma once
 
-#include "System/keyboard_keys.hpp"
-
-
 #include <bitset>
+#include <unordered_map>
 
 struct GLFWwindow;
 class KeyBind;
 
 class Keyboard{
 public:
+    enum class Key : uint16_t;
+    static const std::unordered_map<std::string_view, Key> StringToKeyMap;
 
     void EndFrame();
 
