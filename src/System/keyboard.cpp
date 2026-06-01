@@ -10,15 +10,15 @@
 
 
 void Keyboard::EndFrame(){
-    m_PreviousKeys = std::move(m_CurrentKeys);
+    m_PreviousKeys = m_CurrentKeys;
 }
 
-const bool Keyboard::isKeyHeld(Key key) const {
+bool Keyboard::isKeyHeld(Key key) const {
     return m_CurrentKeys.test(static_cast<size_t>(key));
-}const bool Keyboard::isKeyPressed(Key key) const {
+}bool Keyboard::isKeyPressed(Key key) const {
     int k = static_cast<int>(key);
     return m_CurrentKeys.test(k) && !m_PreviousKeys.test(k);
-}const bool Keyboard::isKeyReleased(Key key) const {
+}bool Keyboard::isKeyReleased(Key key) const {
     int k = static_cast<int>(key);
     return !m_CurrentKeys.test(k) && m_PreviousKeys.test(k);
 }
@@ -26,12 +26,12 @@ const bool Keyboard::isKeyHeld(Key key) const {
 //     m_Callbacks[key].push_back(callback);
 // }
 
-const bool Keyboard::isKeyHeld(uint32_t id, KeyBind bind)  const {
+bool Keyboard::isKeyHeld(uint32_t id, KeyBind bind)  const {
     return m_CurrentKeys.test(static_cast<size_t>(bind.find(id)));
-}const bool Keyboard::isKeyPressed(uint32_t id, KeyBind bind)  const {
+}bool Keyboard::isKeyPressed(uint32_t id, KeyBind bind)  const {
     int k = static_cast<int>(bind.find(id));
     return m_CurrentKeys.test(k) && !m_PreviousKeys.test(k);
-}const bool Keyboard::isKeyReleased(uint32_t id, KeyBind bind)  const {
+}bool Keyboard::isKeyReleased(uint32_t id, KeyBind bind)  const {
     int k = static_cast<int>(bind.find(id));
     return !m_CurrentKeys.test(k) && m_PreviousKeys.test(k);
 }
@@ -120,6 +120,10 @@ void Keyboard::GLFW_key_callback(GLFWwindow* window, int key,[[maybe_unused]] in
 
 KeyBind::KeyBind(const char* file){
     std::fstream data(file);
+    if(!data.is_open()){
+        std::cerr<<"Unavle to open file for keybinds: "<<file<<'\n';
+        exit(1);
+    }
     std::string a,b,c;
     while((data>>a>>b>>c)){
         bindings[KeyBind::ID(a)] = StringToKeyMap.at(c);

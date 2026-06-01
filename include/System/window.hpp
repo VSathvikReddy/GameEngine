@@ -21,4 +21,5 @@ private:
 
 
     static void GLFW_framebuffer_size_callback(GLFWwindow* window, int width, int height); 
+    static void GLFW_window_close_callback(GLFWwindow* window);
 };

@@ -80,8 +80,19 @@ const Clock& WindowContext::getClock() const{
 
 
 
-void WindowContext::pollEvents(){
+void WindowContext::startFrame(){
     glfwPollEvents();
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+void WindowContext::endFrame(){
+    glfwSwapBuffers(m_native);
+
+
+    m_keyboard.EndFrame();
+}
+bool WindowContext::isOpen(){
+    return !glfwWindowShouldClose(m_native);
 }
 
 

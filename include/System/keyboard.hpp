@@ -14,13 +14,13 @@ public:
     void EndFrame();
 
     //All the below rely on polling, callbacks are not implemented
-    const bool isKeyPressed(Key key) const;
-    const bool isKeyHeld(Key key) const;
-    const bool isKeyReleased(Key key) const;
+    bool isKeyPressed(Key key) const;
+    bool isKeyHeld(Key key) const;
+    bool isKeyReleased(Key key) const;
 
-    const bool isKeyPressed(uint32_t id, KeyBind bind) const;
-    const bool isKeyHeld(uint32_t id, KeyBind bind)  const;
-    const bool isKeyReleased(uint32_t id, KeyBind bind)  const;
+    bool isKeyPressed(uint32_t id, KeyBind bind) const;
+    bool isKeyHeld(uint32_t id, KeyBind bind)  const;
+    bool isKeyReleased(uint32_t id, KeyBind bind)  const;
 
     void setCallbacks(GLFWwindow* window);
 private:

@@ -31,7 +31,9 @@ public:
     const Clock& getClock() const;
 
 
-    void pollEvents();
+    void startFrame();
+    void endFrame();
+    bool isOpen();
 private:
     Keyboard m_keyboard;
     Mouse m_mouse;
