@@ -1,0 +1,28 @@
+# --- LEVEL CONFIGURATION ---
+COLUMNS 12
+ROWS 8
+TILE_WIDTH 32.0
+TILE_HEIGHT 32.0
+
+# --- LOADED TEXTURE STACK ---
+TEXTURES_START
+0 assets/textures/forest_tileset.png
+1 assets/textures/dungeon_tileset.png
+2 assets/textures/animated_effects.png
+TEXTURES_END
+
+# --- TEXTURE PALETTE ---
+# Format: [ID] [Layer_ID] [Start_X] [Start_Y] [W] [H] [Frame_Count] [Frame_Duration]
+PALETTE_START
+0 0 0.0   0.0   32.0 32.0 1 0.0   # Forest Air
+1 0 32.0  0.0   32.0 32.0 1 0.0   # Forest Grass
+2 1 0.0   0.0   32.0 32.0 1 0.0   # Dungeon Brick (Layer 1!)
+3 2 0.0   0.0   32.0 32.0 4 0.15  # Animated Fire (Layer 2!)
+PALETTE_END
+
+# --- MAP GRID ---
+GRID_START
+2 2 2 2 2 2 2 2 2 2 2 2
+2 1 1 1 3 3 1 1 1 1 1 2
+2 2 2 2 2 2 2 2 2 2 2 2
+GRID_END

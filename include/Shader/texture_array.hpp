@@ -1,0 +1,31 @@
+#pragma once
+
+#include "Shader/texture.hpp"
+
+#include <GL/glew.h>
+
+#include <iostream>
+#include <vector>
+#include <cstdint>
+
+class TextureArray{
+public:
+    // Accepts a vector of file paths to build the stacked deck of textures
+    TextureArray(const std::vector<std::string>& file_paths);
+    ~TextureArray();
+
+    int getWidth() const;
+    int getHeight() const;
+    int getLayerCount() const;
+
+    // Binds this texture array configuration block to the active state
+    void use(unsigned int slot = 0) const;
+
+private:
+    uint32_t ID;
+    int width, height, nrChannels;
+    int layer_count;
+
+    GLenum getGLenumDataFormat();
+    GLenum getGLenumInternalFormat();
+};
