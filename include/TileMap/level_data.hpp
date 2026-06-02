@@ -31,4 +31,5 @@ struct LevelData {
         map_grid.clear();
         columns = rows = 0;
     }
+
 };

@@ -1,5 +1,9 @@
 #include "System/system.hpp"
 
+#include "TileMap/level_loader.hpp"
+#include "TileMap/level_renderer.hpp"
+#include "TileMap/level_data.hpp"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -12,14 +16,17 @@ int main(){
     //Increase Size not working
     WindowContext context({1000,1000,"Hello WOrld"});
 
+    Shader shd("Shader/tilemap.vert", "Shader/tilemap.frag");
+
+    LevelData lvl;
+    LevelLoader::load("assets/map.txt",lvl);
+    LevelLoader::printLevelData(lvl);
+    LevelRenderer ren(lvl,shd);
+
     while(context.isOpen()){
         context.startFrame();
 
-        if(context.getKeyboard().isKeyPressed(Keyboard::Key::W)){
-            std::cout<<"W\n";
-        }
-
-        std::cout<<"Mouse pressed at"<<context.getMouse().getPosition().x<<' '<<context.getMouse().getPosition().y<<'\n';
+        ren.render(lvl,false,shd,context);
         
 
 

@@ -60,9 +60,28 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, con
     glDeleteShader(vertexShaderID);
     glDeleteShader(fragmentShaderID);
 }
+
+
+
+
+
+Uniform Shader::getUniform(const char* name){
+    auto itr = uniform_map.find(name);
+    if(itr == uniform_map.end()){        
+        auto result = uniform_map.emplace(name,Uniform(ID,name));
+        return result.first->second;
+    }else{
+        return itr->second;
+    }
+}
+
+
+
+
 Shader::Shader(Shader&& other) noexcept{
-        ID = other.ID;
-        other.ID = 0;
+    ID = other.ID;
+    other.ID = 0;
+    this->uniform_map = std::move(other.uniform_map);
 }
 Shader::~Shader(){
     glDeleteProgram(this->ID);

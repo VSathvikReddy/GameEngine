@@ -21,6 +21,8 @@ private:
     static unsigned int createShader(GLenum type, const char* ShaderSource, char* infoLog);
     static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
 
+    Uniform getUniform(const char* name);
+
 public:
     Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const std::string& userDefines = "");
     ~Shader();
@@ -35,29 +37,34 @@ public:
     unsigned int getID() const;
 
     template<typename T>
-    void setUniform(const char* name,const T& value);
-
-    //s plural
-    void setUniforms() {}
-    template<typename T, typename... Args>     // Variadic template to unpack name-value pairs
-    void setUniforms(const char* name, const T& value, Args... args);
+    void setUniform(const char* name,const T& a);
+    template<typename T>
+    void setUniform(const char* name,const T& a, const T& b);
+    template<typename T>
+    void setUniform(const char* name,const T& a, const T& b, const T& c);
+    template<typename T>
+    void setUniform(const char* name,const T* a);
+    
 };
 
-template<typename T, typename... Args>
-void Shader::setUniforms(const char* name,const T& value, Args... args){
-    this->setUniform(name, value);
-    setUniforms(args...);
+template<typename T>
+void Shader::setUniform(const char* name, const T& a) {
+    getUniform(name).setValue(a);
 }
 
 template<typename T>
-void Shader::setUniform(const char* name,const T& value){
-    auto itr = uniform_map.find(name);
-    if(itr == uniform_map.end()){        
-        auto result = uniform_map.emplace(name,Uniform(ID,name));
-        result.first->second.setValue(value);
-    }else{
-        itr->second.setValue(value);
-    }   
+void Shader::setUniform(const char* name, const T& a, const T& b) {
+    getUniform(name).setValue(a, b);
+}
+
+template<typename T>
+void Shader::setUniform(const char* name, const T& a, const T& b, const T& c) {
+    getUniform(name).setValue(a, b, c);
+}
+
+template<typename T>
+void Shader::setUniform(const char* name, const T* a) {
+    getUniform(name).setValue(a);
 }
 
 #endif

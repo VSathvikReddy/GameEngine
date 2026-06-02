@@ -10,7 +10,6 @@ Texture::Texture(const char* file_path){
     if(!data){
         std::cerr << "Failed to load texture:"<<file_path<<std::endl;
         return;
-
     }
 
 
@@ -41,6 +40,8 @@ Texture::Texture(const char* file_path){
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    std::cout<<file_path<<" loaded\n";
 }
 
 Texture::~Texture(){
