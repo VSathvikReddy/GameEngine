@@ -1,6 +1,4 @@
 #include "level_editor.hpp"
-
-#include <fstream>
 #include <iostream>
 
 LevelEditor::LevelEditor(const char* level) {
@@ -11,12 +9,14 @@ LevelEditor::LevelEditor(const char* level) {
     }
 
     loadLevelConfig(file);
-    loadTextures(file);
     loadPaletts(file);
     loadMap(file);
-
     file.close();
 
+    if (!texture_file.empty()) {
+        this->tex = std::make_unique<Texture>(texture_file.c_str());
+        this->tiles_per_row =  tex->getWidth() / static_cast<int>(texture_tile_width);
+    }
 }
 
 void LevelEditor::loadLevelConfig(std::ifstream& file) {
@@ -30,48 +30,14 @@ void LevelEditor::loadLevelConfig(std::ifstream& file) {
         if (token == "LEVEL_CONFIG_END")   { break; }
 
         if (processing) {
-            if (token == "COLUMNS")          file >> columns;
-            else if (token == "ROWS")        file >> rows;
-            else if (token == "TILE_WIDTH")  file >> tile_width;
-            else if (token == "TILE_HEIGHT") file >> tile_height;
+            if (token == "COLUMNS")                  file >> columns;
+            else if (token == "ROWS")                file >> rows;
+            else if (token == "TILE_WIDTH")          file >> tile_width;
+            else if (token == "TILE_HEIGHT")         file >> tile_height;
+            else if (token == "TEXTURE_TILE_WIDTH")  file >> texture_tile_width;
+            else if (token == "TEXTURE_TILE_HEIGHT") file >> texture_tile_height;
+            else if (token == "TEXTURE_FILE")        file >> texture_file;
         }
-    }
-}
-
-void LevelEditor::loadTextures(std::ifstream& file) {
-    std::vector<std::string> texture_paths;
-    std::string token;
-    bool processing = false;
-
-    while (file >> token) {
-        if (token[0] == '#') { std::string discard; std::getline(file, discard); continue; }
-
-        if (token == "TEXTURES_START") { processing = true; continue; }
-        if (token == "TEXTURES_END")   { break; }
-
-        if (processing) {
-            size_t layer_idx = std::stoull(token);
-            std::string path;
-            file >> path;
-
-            if (layer_idx >= texture_paths.size()) {
-                texture_paths.resize(layer_idx + 1);
-            }
-            texture_paths[layer_idx] = path;
-
-            std::string comment_check;
-            auto current_pos = file.tellg();
-            if (file >> comment_check && comment_check[0] == '#') {
-                std::getline(file, comment_check);
-            } else {
-                file.seekg(current_pos);
-            }
-        }
-    }
-
-    if (!texture_paths.empty()) {
-        tex = std::make_unique<TextureArray>(texture_paths);
-        std::cout << "LevelEditor: Loaded " << texture_paths.size() << " layers into TextureArray.\n";
     }
 }
 
@@ -86,17 +52,14 @@ void LevelEditor::loadPaletts(std::ifstream& file) {
         if (token == "PALETTE_END")   { break; }
 
         if (processing) {
-            uint32_t id = std::stoul(token);
             Palette entry;
             
-            file >> entry.layerID >> entry.startX >> entry.startY 
-                 >> entry.width >> entry.height >> entry.frameCount >> entry.frameDuration;
+            entry.tileIndex = std::stoul(token);
+            file >> entry.frameCount >> entry.frameDuration;
 
-            if (id >= m_palette_array.size()) {
-                m_palette_array.resize(id + 1);
-            }
-            m_palette_array[id] = entry;
+            m_palette_array.push_back(entry);
 
+            // Safely swallow trailing descriptive code comments
             std::string comment_check;
             auto current_pos = file.tellg();
             if (file >> comment_check && comment_check[0] == '#') {
@@ -124,6 +87,22 @@ void LevelEditor::loadMap(std::ifstream& file) {
         
         if (token == "GRID_END") { break; }
     }
+}
+
+std::pair<float,float> LevelEditor::calculateTileCoordinates(uint32_t tile_id, uint32_t active_frame) const {
+    // The tile_id from the map grid maps directly to the array vector index slot!
+    if (tile_id >= m_palette_array.size() || !tex) {
+        std::cerr<<tile_id<<" : out of range\n";
+        return;
+    }
+    
+    // Horizontal tracking calculation to drive real-time animation frame parsing
+    uint32_t target_index = m_palette_array[tile_id].tileIndex + active_frame;
+
+    return{
+        static_cast<float>(target_index % tiles_per_row) * texture_tile_width,
+        static_cast<float>(target_index / tiles_per_row) * texture_tile_height
+    };
 }
 
 void LevelEditor::setTile(uint32_t col, uint32_t row, uint32_t tile_id) {
