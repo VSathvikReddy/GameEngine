@@ -1,10 +1,10 @@
-#include "TileMap/level_loader.hpp"
-#include "TileMap/level_data.hpp"
+#include "TileMap/tilemap_loader.hpp"
+#include "TileMap/tilemap_data.hpp"
 
 #include <iostream>
 #include <fstream>
 
-bool LevelLoader::load(const char* filepath, LevelData& outData){
+bool TileMapLoader::load(const char* filepath, TileMapData& outData){
     std::ifstream file(filepath);
     if (!file.is_open()) {
         return false;
@@ -101,7 +101,7 @@ bool LevelLoader::load(const char* filepath, LevelData& outData){
 #include <iostream>
 #include <iomanip> // For clean grid alignment formatting
 
-void LevelLoader::printLevelData(const LevelData& data) {
+void TileMapLoader::printTileMapData(const TileMapData& data) {
     std::cout << "========================================\n";
     std::cout << "          LEVEL DATA VERIFICATION        \n";
     std::cout << "========================================\n";

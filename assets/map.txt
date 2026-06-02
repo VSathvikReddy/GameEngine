@@ -2,8 +2,8 @@
 LEVEL_CONFIG_START
 COLUMNS 16
 ROWS 8
-TILE_WIDTH 32.0
-TILE_HEIGHT 32.0
+TILE_WIDTH 100.0
+TILE_HEIGHT 100.0
 TEXTURE_TILE_WIDTH 32.0
 TEXTURE_TILE_HEIGHT 32.0
 TEXTURE_FILE assets/test.png
@@ -11,12 +11,11 @@ LEVEL_CONFIG_END
 
 # --- TEXTURE PALETTE ---
 # Format: [Tile_Index] [Frame_Count] [Frame_Duration]
-# Implicitly map sequential IDs 0, 1, 2, 3 to sequential layout slices
 PALETTE_START
-0 1 0.0   # ID 0: First Tileset Slice (e.g., Background/Air)
-1 1 0.0   # ID 1: Second Tileset Slice (e.g., Wall/Solid)
-2 1 0.0   # ID 2: Third Tileset Slice (e.g., Prop/Decor)
-3 1 0.0   # ID 3: Fourth Tileset Slice (e.g., Hazard/Liquid)
+0 1 0.0
+1 1 0.0
+2 1 0.0
+3 1 0.0
 PALETTE_END
 
 # --- MAP GRID ---

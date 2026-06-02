@@ -1,34 +1,33 @@
 #include "System/system.hpp"
-
-#include "TileMap/level_loader.hpp"
-#include "TileMap/level_data.hpp"
-
 #include "Shader/shader.hpp"
+#include "Shader/texture.hpp"
+
+#include "TileMap/tilemap_data.hpp"
+#include "TileMap/tilemap_loader.hpp"
+#include "TileMap/tilemap_renderer.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
+int main() {
+    WindowContext context({1000, 1000, "Hello Raw NDC"});
 
-
-// ${workspaceFolder}/build/compile_commands.json Complier commands
-// Cmake again
-int main(){
-    //Increase Size not working
-    WindowContext context({1000,1000,"Hello WOrld"});
-
+    // Load our basic standalone pass-through shaders
     Shader shd("Shader/tilemap.vert", "Shader/tilemap.frag");
     Texture tex("assets/test.png");
 
-    while(context.isOpen()){
+    TileMapData map("assets/map.txt");
+    TileMapRenderer rdr(map,shd,context);
+
+    while (context.isOpen()) {
         context.startFrame();
 
-        // ren.render(lvl,true,shd,context);
-        
-
+        rdr.render(map,shd,context,false);
 
         context.endFrame();
     }
+
+
 
     return 0;
 }
