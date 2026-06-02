@@ -17,9 +17,15 @@ public:
 
     void use(unsigned int slot = 0) const;
 
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+
+    Texture(Texture&& other) =delete;
+    Texture& operator=(Texture&& other) = delete;
+
 private:
-    uint32_t ID;
-    int width, height, nrChannels;
+    uint32_t ID =0;
+    int width = 0, height=0, nrChannels=0;
 
     GLenum getGLenumDataFormat();
     GLenum getGLenumInternalFormat();

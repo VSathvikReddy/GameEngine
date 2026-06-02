@@ -4,7 +4,7 @@
 #include "stb_image.h"
 
 Texture::Texture(const char* file_path){
-    stbi_set_flip_vertically_on_load(true);
+    //stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(file_path, &width, &height, &nrChannels, 0);
 
     if(!data){
@@ -45,7 +45,9 @@ Texture::Texture(const char* file_path){
 }
 
 Texture::~Texture(){
-    glDeleteTextures(1, &ID);
+    if (ID != 0) {
+        glDeleteTextures(1, &ID);
+    }
 }
 
 void Texture::use(unsigned int slot) const {

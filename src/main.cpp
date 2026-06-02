@@ -1,8 +1,9 @@
 #include "System/system.hpp"
 
 #include "TileMap/level_loader.hpp"
-#include "TileMap/level_renderer.hpp"
 #include "TileMap/level_data.hpp"
+
+#include "Shader/shader.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,16 +18,12 @@ int main(){
     WindowContext context({1000,1000,"Hello WOrld"});
 
     Shader shd("Shader/tilemap.vert", "Shader/tilemap.frag");
-
-    LevelData lvl;
-    LevelLoader::load("assets/map.txt",lvl);
-    LevelLoader::printLevelData(lvl);
-    LevelRenderer ren(lvl,shd);
+    Texture tex("assets/test.png");
 
     while(context.isOpen()){
         context.startFrame();
 
-        ren.render(lvl,false,shd,context);
+        // ren.render(lvl,true,shd,context);
         
 
 
