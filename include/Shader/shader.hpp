@@ -14,26 +14,11 @@
 #include "Shader/uniform.hpp"
 
 class Shader{
-private:
-    unsigned int ID = 0;
-    std::unordered_map<std::string,Uniform> uniform_map;
-    
-    static unsigned int createShader(GLenum type, const char* ShaderSource, char* infoLog);
-    static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
-
-    Uniform getUniform(const char* name);
-
 public:
     Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const std::string& userDefines = "");
     ~Shader();
-    
-    Shader(const Shader&) = delete;             // no copying
-    Shader& operator=(const Shader&) = delete;
 
-    Shader(Shader&& other) noexcept;      // move support
-
-
-    void use();
+    void use() const;
     unsigned int getID() const;
 
     template<typename T>
@@ -44,7 +29,21 @@ public:
     void setUniform(const char* name,const T& a, const T& b, const T& c);
     template<typename T>
     void setUniform(const char* name,const T* a);
+
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
+
+    Shader(Shader&& other) noexcept;
+    Shader& operator=(Shader&& other) noexcept;
+
+private:
+    unsigned int ID = 0;
+    std::unordered_map<std::string,Uniform> uniform_map;
     
+    static unsigned int createShader(GLenum type, const char* ShaderSource, char* infoLog);
+    static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
+
+    Uniform getUniform(const char* name);
 };
 
 template<typename T>

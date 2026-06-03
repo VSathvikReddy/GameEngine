@@ -8,12 +8,8 @@
 struct Uniform{
     const unsigned int ID=0;
 
-    Uniform(unsigned int shader_ID, const char* name):
-        ID(glGetUniformLocation(shader_ID, name)){
-    }
-    Uniform(unsigned int location_ID):
-            ID(location_ID){        
-    }
+    Uniform(unsigned int shader_ID, const char* name);
+    Uniform(unsigned int location_ID);
 
     template<typename T>
     void setValue(const T& a);
@@ -25,6 +21,14 @@ struct Uniform{
     void setValue(const T* a);
 
 };
+
+inline Uniform::Uniform(unsigned int shader_ID, const char* name):
+    ID(glGetUniformLocation(shader_ID, name)){
+}
+inline Uniform::Uniform(unsigned int location_ID):
+        ID(location_ID){        
+}
+
 
 template<> 
 inline void Uniform::setValue<float>(const float& a) {

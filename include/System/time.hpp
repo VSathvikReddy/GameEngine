@@ -1,100 +1,61 @@
 #pragma once
 
+#include <cstdint>
+#include <compare>
+#include <type_traits>
 
 template<typename T>
 class Time {
-public:
-    Time();
-    explicit Time(T seconds);
-
-    // Getters
-    T asSeconds() const;
-    T asMilliseconds() const;
-    T asMicroseconds() const;
-    T asMinutes() const;
-    T asHours() const;
-
-
-    static Time Seconds(T s);
-    static Time Milliseconds(T ms);
-    static Time Microseconds(T us);
-    static Time Minutes(T mins);
-    static Time Hours(T hrs);
-
-
-    Time  operator+ (const Time& rhs) const;
-    Time  operator- (const Time& rhs) const;
-    Time& operator+=(const Time& rhs);
-    Time& operator-=(const Time& rhs);
-
+    static_assert(std::is_floating_point_v<T>, "Time representation must use a floating-point type.");
 private:
-    T m_milli_seconds; 
-};
+    T m_milliseconds = T{0};
 
+    // PRIVATE CONSTRUCTOR
+    constexpr explicit Time(T milliseconds) noexcept : m_milliseconds(milliseconds) {}
+
+public:
+    constexpr Time() noexcept = default;
+    ~Time() = default;
+
+
+    [[nodiscard]] static constexpr Time Microseconds(T us) noexcept { return Time(us / T{1000}); }
+    [[nodiscard]] static constexpr Time Milliseconds(T ms) noexcept { return Time(ms); }
+    [[nodiscard]] static constexpr Time Seconds(T s)       noexcept { return Time(s * T{1000}); }
+    [[nodiscard]] static constexpr Time Minutes(T mins)    noexcept { return Time(mins * T{60000}); }
+    [[nodiscard]] static constexpr Time Hours(T hrs)       noexcept { return Time(hrs * T{3600000}); }
+
+
+    [[nodiscard]] constexpr T asMicroseconds() const noexcept { return m_milliseconds * T{1000}; }
+    [[nodiscard]] constexpr T asMilliseconds() const noexcept { return m_milliseconds; }
+    [[nodiscard]] constexpr T asSeconds()      const noexcept { return m_milliseconds / T{1000}; }
+    [[nodiscard]] constexpr T asMinutes()      const noexcept { return m_milliseconds / T{60000}; }
+    [[nodiscard]] constexpr T asHours()        const noexcept { return m_milliseconds / T{3600000}; }
+
+
+    constexpr Time operator+(const Time& rhs) const noexcept { return Time(m_milliseconds + rhs.m_milliseconds); }
+    constexpr Time operator-(const Time& rhs) const noexcept { return Time(m_milliseconds - rhs.m_milliseconds); }
+    constexpr Time operator-()                const noexcept { return Time(-m_milliseconds); }
+
+    constexpr Time& operator+=(const Time& rhs) noexcept { m_milliseconds += rhs.m_milliseconds; return *this; }
+    constexpr Time& operator-=(const Time& rhs) noexcept { m_milliseconds -= rhs.m_milliseconds; return *this; }
+
+    constexpr Time operator*(T scalar) const noexcept { return Time(m_milliseconds * scalar); }
+    constexpr Time operator/(T scalar) const noexcept { return Time(m_milliseconds / scalar); }
+    constexpr Time& operator*=(T scalar) noexcept { m_milliseconds *= scalar; return *this; }
+    constexpr Time& operator/=(T scalar) noexcept { m_milliseconds /= scalar; return *this; }
+
+    
+    constexpr bool operator==(const Time& rhs) const noexcept { return m_milliseconds == rhs.m_milliseconds; }
+    constexpr bool operator!=(const Time& rhs) const noexcept { return m_milliseconds != rhs.m_milliseconds; }
+    constexpr bool operator< (const Time& rhs) const noexcept { return m_milliseconds <  rhs.m_milliseconds; }
+    constexpr bool operator<=(const Time& rhs) const noexcept { return m_milliseconds <= rhs.m_milliseconds; }
+    constexpr bool operator> (const Time& rhs) const noexcept { return m_milliseconds >  rhs.m_milliseconds; }
+    constexpr bool operator>=(const Time& rhs) const noexcept { return m_milliseconds >= rhs.m_milliseconds; }
+};
 
 using TimeF = Time<float>;
 using TimeD = Time<double>;
 
-
-///////////////////////////////////////
-
-template<typename T>
-inline Time<T>::Time() : m_milli_seconds(T{0}) {}
-
-template<typename T>
-inline Time<T>::Time(T seconds) : m_milli_seconds(seconds*T{1000}) {}
-
-
-template<typename T>
-inline T Time<T>::asSeconds() const { return m_milli_seconds / T{1000}; }
-
-template<typename T>
-inline T Time<T>::asMilliseconds() const { return m_milli_seconds; }
-
-template<typename T>
-inline T Time<T>::asMicroseconds() const { return m_milli_seconds * T{1000}; }
-
-template<typename T>
-inline T Time<T>::asMinutes() const { return m_milli_seconds / T{60000}; }
-
-template<typename T>
-inline T Time<T>::asHours() const { return m_milli_seconds / T{3600000}; }
-
-
-template<typename T>
-inline Time<T> Time<T>::Seconds(T s) { return Time<T>(s * T{1000}); }
-
-template<typename T>
-inline Time<T> Time<T>::Milliseconds(T ms) { return Time<T>(ms); }
-
-template<typename T>
-inline Time<T> Time<T>::Microseconds(T us) { return Time<T>(us / T{1000}); }
-
-template<typename T>
-inline Time<T> Time<T>::Minutes(T mins) { return Time<T>(mins * T{60000}); }
-
-template<typename T>
-inline Time<T> Time<T>::Hours(T hrs) { return Time<T>(hrs * T{3600000}); }
-
-
-template<typename T>
-inline Time<T> Time<T>::operator+(const Time<T>& rhs) const {
-    return Time<T>(m_milli_seconds + rhs.m_milli_seconds);
-}
-
-template<typename T>
-inline Time<T> Time<T>::operator-(const Time<T>& rhs) const {
-    return Time<T>(m_milli_seconds - rhs.m_milli_seconds);
-}
-
-template<typename T>
-inline Time<T>& Time<T>::operator+=(const Time<T>& rhs) {
-    m_milli_seconds += rhs.m_milli_seconds;
-    return *this; 
-}
-
-template<typename T>
-inline Time<T>& Time<T>::operator-=(const Time<T>& rhs) {
-    m_milli_seconds -= rhs.m_milli_seconds;
-    return *this;
-}
+// Modern User-Defined Literals for ultra-clean timelines
+constexpr TimeF operator""_ms(long double ms) { return TimeF::Milliseconds(static_cast<float>(ms)); }
+constexpr TimeF operator""_s(long double s)   { return TimeF::Seconds(static_cast<float>(s)); }

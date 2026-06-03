@@ -80,7 +80,7 @@ TextureArray::TextureArray(const std::vector<std::string>& file_paths){
 }
 
 TextureArray::~TextureArray() {
-    glDeleteTextures(1, &ID); // Destroys the whole internal deck structure safely from VRAM
+    if(ID!=0) glDeleteTextures(1, &ID); // Destroys the whole internal deck structure safely from VRAM
 }
 
 int TextureArray::getWidth() const{
@@ -94,6 +94,7 @@ int TextureArray::getLayerCount() const {
 }
 
 void TextureArray::use(unsigned int slot) const {
+    if(ID==0){ std::cerr<<"Broken texture being used\n"; return;}
     glActiveTexture(GL_TEXTURE0 + slot); // Keeps your array safe from random engine states!
     glBindTexture(GL_TEXTURE_2D_ARRAY, ID);
 }
@@ -114,4 +115,25 @@ GLenum TextureArray::getGLenumInternalFormat(){
         case 4: return GL_RGBA8;
         default: return GL_RGB8;
     }    
+}
+
+
+
+TextureArray::TextureArray(TextureArray&& other) noexcept: 
+    ID(other.ID),width(other.width),height(other.height),nrChannels(other.nrChannels),layer_count(other.layer_count){
+        other.ID = 0;
+}
+TextureArray& TextureArray::operator=(TextureArray&& other) noexcept{
+    if (ID != 0) {
+        glDeleteTextures(1, &ID);
+    }
+    ID = other.ID;
+    width = other.width;
+    height = other.height;
+    nrChannels = other.nrChannels;
+    layer_count = other.layer_count;
+
+    other.ID = 0;
+
+    return *this;
 }

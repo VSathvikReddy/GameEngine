@@ -21,8 +21,13 @@ public:
     // Binds this texture array configuration block to the active state
     void use(unsigned int slot = 0) const;
 
+    TextureArray(const TextureArray&) = delete;
+    TextureArray& operator=(const TextureArray&) = delete;
+
+    TextureArray(TextureArray&& other) noexcept;
+    TextureArray& operator=(TextureArray&& other) noexcept;
 private:
-    uint32_t ID;
+    uint32_t ID = 0;
     int width, height, nrChannels;
     int layer_count;
 

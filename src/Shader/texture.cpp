@@ -47,12 +47,11 @@ Texture::Texture(const char* file_path){
 }
 
 Texture::~Texture(){
-    if (ID != 0) {
-        glDeleteTextures(1, &ID);
-    }
+    if (ID != 0) glDeleteTextures(1, &ID);
 }
 
 void Texture::use(unsigned int slot) const {
+    if(ID==0){ std::cerr<<"Broken texture being used\n"; return;}
     glActiveTexture(GL_TEXTURE0 + slot); // Shifts dynamically (e.g., GL_TEXTURE0 + 2 = GL_TEXTURE2)
     glBindTexture(GL_TEXTURE_2D, ID);
 }
@@ -81,3 +80,22 @@ GLenum Texture::getGLenumInternalFormat(){
         default: return GL_RGB8;
     }    
 }
+
+Texture::Texture(Texture&& other) noexcept: 
+    ID(other.ID),width(other.width),height(other.height),nrChannels(other.nrChannels){
+        other.ID = 0;
+}
+Texture& Texture::operator=(Texture&& other) noexcept{
+    if (ID != 0) {
+        glDeleteTextures(1, &ID);
+    }
+    ID = other.ID;
+    width = other.width;
+    height = other.height;
+    nrChannels = other.nrChannels;
+
+    other.ID = 0;
+
+    return *this;
+}
+

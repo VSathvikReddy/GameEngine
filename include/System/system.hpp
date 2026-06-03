@@ -17,6 +17,11 @@ public:
     WindowContext(uint32_t width = 0, uint32_t height = 0, const char* title = "Default Name");
     ~WindowContext();
 
+    WindowContext(const WindowContext& other) = delete;
+    WindowContext(WindowContext&& other) = delete;
+    WindowContext& operator=(const WindowContext& other) = delete;
+    WindowContext& operator=(WindowContext&& other) = delete;
+
     friend class Keyboard;
     friend class Mouse;
     friend class Window;
@@ -45,5 +50,4 @@ private:
     GLFWwindow* m_native = nullptr;
 
     static void GLFW_error_callback(int error, const char* description);
-
 };

@@ -49,11 +49,18 @@ Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath, con
     std::string vertexShaderSource = ShaderPreProcessor::Process(vertexShaderPath, userDefines);
     std::string fragmentShaderSource = ShaderPreProcessor::Process(fragmentShaderPath, userDefines);
     if(vertexShaderSource.empty() || fragmentShaderSource.empty()){
-        return;
+        return; //ID is set to 0
     }
     char infoLog[512];
     unsigned int vertexShaderID = Shader::createShader(GL_VERTEX_SHADER, vertexShaderSource.c_str(), infoLog);
     unsigned int fragmentShaderID = Shader::createShader(GL_FRAGMENT_SHADER, fragmentShaderSource.c_str(), infoLog);
+
+    if (vertexShaderID == 0 || fragmentShaderID == 0) {
+        if (vertexShaderID != 0) glDeleteShader(vertexShaderID);
+        if (fragmentShaderID != 0) glDeleteShader(fragmentShaderID);
+        this->ID = 0;
+        return;
+    }
 
     this->ID = Shader::linkShaders(vertexShaderID, fragmentShaderID, infoLog);
 
@@ -83,11 +90,23 @@ Shader::Shader(Shader&& other) noexcept{
     other.ID = 0;
     this->uniform_map = std::move(other.uniform_map);
 }
+Shader& Shader::operator=(Shader&& other) noexcept{
+    if(this->ID!=0){
+        glDeleteProgram(this->ID);
+    }
+    this->ID = other.ID;
+    other.ID = 0; 
+    this->uniform_map = std::move(other.uniform_map);  
+
+    return *this;
+}
 Shader::~Shader(){
-    glDeleteProgram(this->ID);
+    if(this->ID!=0){
+        glDeleteProgram(this->ID);
+    }
 }
 
-void Shader::use(){
+void Shader::use() const{
     if(ID!=0) glUseProgram(ID);
 }
 unsigned int Shader::getID() const{

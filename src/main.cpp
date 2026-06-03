@@ -19,7 +19,7 @@ int main() {
     TileMapData map("assets/map.txt");
     TileMapRenderer rdr(map,shd,context);
 
-    while (context.isOpen()) {
+    while (context.isOpen()){
         context.startFrame();
 
         rdr.render(map,shd,context,false);
