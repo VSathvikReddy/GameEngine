@@ -15,7 +15,6 @@ int main() {
     TextureManager::RegisterManager(&manager);
     WindowContext context({1000, 1000, "Hello Raw NDC"});
 
-    // Load our basic standalone pass-through shaders
     Shader shd("Shader/tilemap.vert", "Shader/tilemap.frag");
     Texture tex = Texture::load("assets/test.png");
 

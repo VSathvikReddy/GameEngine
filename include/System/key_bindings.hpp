@@ -1,7 +1,5 @@
 #pragma once
 
-#include "System/keyboard_keys.hpp"
-
 class KeyBind{
 public:
     KeyBind(const char* file);

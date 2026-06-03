@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #define DEFAULT_VERTEX_SHADER "shaders/basic.vert"
 #define DEFAULT_FRAGMENT_SHADER "shaders/basic.frag"

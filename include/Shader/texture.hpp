@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
 
 #include <cstdint>
 #include <string_view>

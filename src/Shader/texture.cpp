@@ -1,6 +1,9 @@
 #include "Shader/texture.hpp"
 #include "Shader/texture_manager.hpp"
 
+
+#include <GL/glew.h>
+
 #include <cassert>
 uint32_t Texture::getWidth() const noexcept {
     assert(TextureManager::master != nullptr && "TextureManager context was never registered!");

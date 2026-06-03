@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include "Shader/shader.hpp"
 #include "Shader/pre_processor.hpp"
 

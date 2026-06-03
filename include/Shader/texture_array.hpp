@@ -4,7 +4,6 @@
 
 #include <GL/glew.h>
 
-#include <iostream>
 #include <vector>
 #include <cstdint>
 
