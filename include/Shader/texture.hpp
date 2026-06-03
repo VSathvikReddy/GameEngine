@@ -2,31 +2,27 @@
 
 #include <GL/glew.h>
 
-#include <iostream>
 #include <cstdint>
+#include <string_view>
 
-class TextureArray;
 
-class Texture{
+class TextureManager;
+
+class Texture {
 public:
-    Texture(const char* file_path);
-    ~Texture();
+    Texture() = delete;
+    ~Texture() = default;
 
-    int getWidth() const;
-    int getHeight() const;
+    uint32_t getWidth() const noexcept;
+    uint32_t getHeight() const noexcept;
 
-    void use(unsigned int slot = 0) const;
+    void use(unsigned int slot = 0) const noexcept;
 
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
-
-    Texture(Texture&& other) noexcept;
-    Texture& operator=(Texture&& other) noexcept;
+    [[nodiscard]] static Texture load(std::string_view path);
 
 private:
-    uint32_t ID =0;
-    int width = 0, height=0, nrChannels=0;
+    friend class TextureManager;
+    constexpr explicit Texture(uint32_t id) noexcept : m_id(id) {}
 
-    GLenum getGLenumDataFormat();
-    GLenum getGLenumInternalFormat();
+    uint32_t m_id;
 };

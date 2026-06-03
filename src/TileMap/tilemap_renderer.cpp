@@ -3,8 +3,10 @@
 
 #include "TileMap/tilemap_data.hpp"
 
+
 #include "Shader/shader.hpp"
 #include "Shader/texture.hpp"
+#include "Shader/texture_manager.hpp"
 #include "System/system.hpp"
 
 
@@ -19,7 +21,7 @@
 #include <string>
 
 TileMapRenderer::TileMapRenderer(const TileMapData& data, Shader& shader,const WindowContext& context) 
-    : m_tileset_tex(data.texture_file.c_str()) {
+    : m_tileset_tex(Texture::load(data.texture_file.c_str())) {
     initRenderData(data, shader, context);
 }
 

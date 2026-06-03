@@ -1,6 +1,7 @@
 #include "System/system.hpp"
 #include "Shader/shader.hpp"
 #include "Shader/texture.hpp"
+#include "Shader/texture_manager.hpp"
 
 #include "TileMap/tilemap_data.hpp"
 #include "TileMap/tilemap_loader.hpp"
@@ -10,11 +11,13 @@
 #include <GLFW/glfw3.h>
 
 int main() {
+    TextureManager manager;
+    TextureManager::RegisterManager(&manager);
     WindowContext context({1000, 1000, "Hello Raw NDC"});
 
     // Load our basic standalone pass-through shaders
     Shader shd("Shader/tilemap.vert", "Shader/tilemap.frag");
-    Texture tex("assets/test.png");
+    Texture tex = Texture::load("assets/test.png");
 
     TileMapData map("assets/map.txt");
     TileMapRenderer rdr(map,shd,context);
