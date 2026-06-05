@@ -25,7 +25,8 @@ public:
 
     void loadShader(const std::filesystem::path& folder, std::string_view shaderName, std::string_view userDefines = "") noexcept;
 
-    [[nodiscard]] Shader getShader(std::string_view shaderName);
+    [[nodiscard]] Shader getShader(const std::string& shaderName);
+    [[nodiscard]] uint32_t setUBOs(const std::string& name);
 
     void clear();
 private:
@@ -38,6 +39,8 @@ private:
     
     std::unordered_map<std::string, ShaderID> string_to_shader_ID;
     std::vector<ShaderData> shader_data;
+    
+
     ShaderID active_shader_ID = 0;
 
 
@@ -45,6 +48,9 @@ private:
     
     template<typename T> void setUniform(ShaderID ID, std::string_view name, const T& a) noexcept;
     template<typename T> void setUniformUnsafe(ShaderID ID, std::string_view name, const T& a) noexcept;
+
+    std::unordered_map<std::string,uint32_t> registered_ubos;
+    uint32_t available_ubo_slot = 0; // Needs to be called after loading all shaders
 
     Uniform getUniform(ShaderID ID, std::string_view name);
 

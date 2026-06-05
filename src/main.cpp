@@ -13,7 +13,7 @@
 
 int main() {
 
-
+    WindowContext context(100,100);
 
 
     return 0;

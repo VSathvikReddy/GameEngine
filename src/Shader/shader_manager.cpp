@@ -81,6 +81,14 @@ void ShaderManager::loadShader(const std::filesystem::path& folder, std::string_
     ShaderID newEngineID = static_cast<ShaderID>(shader_data.size());
     shader_data.push_back({ID});
     string_to_shader_ID[nameKey] = newEngineID;
+
+    for(const auto& itr: registered_ubos){
+        unsigned int idx = glGetUniformBlockIndex(ID, itr.first.c_str());
+        if (idx != GL_INVALID_INDEX) {
+            glUniformBlockBinding(ID, idx, itr.second);
+        }
+    }
+
 }
 
 unsigned int ShaderManager::createShader(GLenum type, const char* ShaderSource, char* infoLog) {
@@ -125,8 +133,8 @@ ShaderGPUID ShaderManager::linkShaders(unsigned int vertexShader, unsigned int f
 }
 
 // This is the only way to create a shader, and it will throw error if I release an invalid shader
-Shader ShaderManager::getShader(std::string_view shaderName){
-    return Shader(*this,string_to_shader_ID.at(std::string(shaderName)));
+Shader ShaderManager::getShader(const std::string& shaderName){
+    return Shader(*this,string_to_shader_ID.at(shaderName));
 }
 
 void ShaderManager::clear(){
@@ -141,6 +149,25 @@ void ShaderManager::use(ShaderID ID){
     active_shader_ID = ID;
 }
 
+uint32_t ShaderManager::setUBOs(const std::string& name){
+    auto it = registered_ubos.find(name);
+    if (it != registered_ubos.end()) {
+        return it->second; // ◄── If found, returns the saved slot (e.g. 0) WITHOUT touching the counter!
+    }
+
+    if (available_ubo_slot >= 14) {
+        throw std::runtime_error("Engine Error: Exhausted maximum hardware UBO slots when binding");
+    }
+
+    for (const auto& itr : shader_data) {
+        unsigned int idx = glGetUniformBlockIndex(itr.programID, name.c_str());
+        if (idx != GL_INVALID_INDEX) {
+            glUniformBlockBinding(itr.programID, idx, available_ubo_slot);
+        }
+    }
+    registered_ubos[name] = available_ubo_slot;
+    return available_ubo_slot++;
+}
 
 Uniform ShaderManager::getUniform(ShaderID ID, std::string_view name){
     std::string key(name);

@@ -12,9 +12,11 @@ layout (location = 6) in vec4 iColor;       // Normalized from 4 GL_UNSIGNED_BYT
 out vec2 UV;
 out vec4 TintColor;
 
+layout (std140) uniform Camera{
+    uniform mat4 view;
+    uniform mat4 projection;
+};
 
-uniform mat4 view;
-uniform mat4 projection;
 uniform vec2 u_TextureSize;
 
 layout (std140) uniform PaletteBlock {

@@ -26,7 +26,7 @@ LDFLAGS := \
 	-ldl -pthread
 
 # (C++ Compiler Flags)
-CXXFLAGS := -std=c++17
+CXXFLAGS := -std=c++20
 Warning_FLAGS := -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Woverloaded-virtual -Wnull-dereference -Wold-style-cast -Wsuggest-override -Wpessimizing-move -Wmisleading-indentation -Wduplicated-cond -Woverloaded-virtual -Wunused -Wcast-align
 # -Wconversion, -Wsign-conversion, -Wdouble-promotion
 # (C Compiler Flags)
