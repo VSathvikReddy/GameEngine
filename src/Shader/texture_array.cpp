@@ -1,4 +1,4 @@
-#include "Shader/texture_array.hpp"
+#include "Render/Texture/texture_array.hpp"
 #include "stb_image.h" // Assumed image loading system library location
 #include <iostream>
 #include <cmath>

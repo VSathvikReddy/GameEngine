@@ -2,7 +2,7 @@
 #define SHADER_H
 
 #include <string_view>
-#include "Shader/shader_manager.hpp"
+#include "Render/Shader/shader_manager.hpp"
 
 class ShaderManager;
 

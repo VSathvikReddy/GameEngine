@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader/texture.hpp"
+#include "Render/Texture/texture.hpp"
 
 #include <GL/glew.h>
 #include <cstdint>

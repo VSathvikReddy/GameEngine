@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader/uniform.hpp"
+#include "Render/Shader/uniform.hpp"
 
 #include <GL/glew.h>
 

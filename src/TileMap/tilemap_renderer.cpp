@@ -5,8 +5,8 @@
 
 
 #include "Shader/shader.hpp"
-#include "Shader/texture.hpp"
-#include "Shader/texture_manager.hpp"
+#include "Render/Texture/texture.hpp"
+#include "Render/Texture/texture_manager.hpp"
 #include "System/system.hpp"
 #include "Shader/uniform.hpp"
 

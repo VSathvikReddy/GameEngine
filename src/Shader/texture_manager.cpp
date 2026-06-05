@@ -1,5 +1,5 @@
-#include "Shader/texture_manager.hpp"
-#include "Shader/texture.hpp"
+#include "Render/Texture/texture_manager.hpp"
+#include "Render/Texture/texture.hpp"
 
 #include <iostream>
 #include <cassert>
