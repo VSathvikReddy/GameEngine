@@ -31,6 +31,10 @@ private:
     Shader(ShaderManager& manager,ShaderID ID):manager(manager),ID(ID){}
 };
 
+
+
+
+
 template<typename T>
 inline void Shader::setUniform(std::string_view name, const T& a) const noexcept{
     manager.setUniform(ID,name,a);

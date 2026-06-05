@@ -4,16 +4,6 @@
 
 #include <GL/glew.h>
 
-#include <string_view>
-#include <vector>
-#include <unordered_map>
-
-
-
-
-
-#pragma once
-
 #include <filesystem>
 #include <string_view>
 #include <vector>
@@ -61,6 +51,11 @@ private:
     static unsigned int createShader(GLenum type, const char* shaderSource, char* infoLog);
     static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
 };
+
+
+
+
+
 
 template<typename T>
 inline void ShaderManager::setUniform(ShaderID ID, std::string_view name, const T& a) noexcept{
