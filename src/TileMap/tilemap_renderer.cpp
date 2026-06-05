@@ -8,6 +8,7 @@
 #include "Shader/texture.hpp"
 #include "Shader/texture_manager.hpp"
 #include "System/system.hpp"
+#include "Shader/uniform.hpp"
 
 
 #include <GL/glew.h>
@@ -91,16 +92,16 @@ void TileMapRenderer::initRenderData(const TileMapData& data, Shader& shader, co
         float pixelY = static_cast<float>(index / atlas_tiles_per_row) * data.texture_tile_height;
 
         std::string uniformName = "u_Palette[" + std::to_string(i) + "]";
-        shader.setUniform(uniformName.c_str(), pixelX, pixelY);
+        shader.setUniform(uniformName.c_str(), Vec2f{pixelX, pixelY});
     }
 
     // Explicit float casts ensure your data maps perfectly onto the shader's vec2 registers
-    shader.setUniform("u_TileSize", static_cast<float>(data.tile_width), static_cast<float>(data.tile_height));
+    shader.setUniform("u_TileSize", Vec2f{static_cast<float>(data.tile_width), static_cast<float>(data.tile_height)});
     shader.setUniform("u_TilesPerRow", static_cast<int>(data.columns));
 
     // Upload asset sizing parameters
-    shader.setUniform("u_TextureSize", static_cast<float>(m_tileset_tex.getWidth()), static_cast<float>(m_tileset_tex.getHeight()));
-    shader.setUniform("u_TextureTileSize", data.texture_tile_width, data.texture_tile_height);
+    shader.setUniform("u_TextureSize", Vec2f{static_cast<float>(m_tileset_tex.getWidth()), static_cast<float>(m_tileset_tex.getHeight())});
+    shader.setUniform("u_TextureTileSize", Vec2f{data.texture_tile_width, data.texture_tile_height});
     
     // Explicitly link the sampler identifier to texture slot index 0
     shader.setUniform("u_TilesetTexture", 0);
@@ -121,7 +122,7 @@ void TileMapRenderer::render(const TileMapData& data, Shader& shader, const Wind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Keep dimensions matched if structural data sizing changes at runtime
-        shader.setUniform("u_TileSize", static_cast<float>(data.tile_width), static_cast<float>(data.tile_height));
+        shader.setUniform("u_TileSize", Vec2f{static_cast<float>(data.tile_width), static_cast<float>(data.tile_height)});
         shader.setUniform("u_TilesPerRow", static_cast<int>(data.columns));
     }
 

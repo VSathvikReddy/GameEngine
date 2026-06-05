@@ -1,67 +1,44 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <string>
-#include <unordered_map>
+#include <string_view>
+#include "Shader/shader_manager.hpp"
 
+class ShaderManager;
 
-#define DEFAULT_VERTEX_SHADER "shaders/basic.vert"
-#define DEFAULT_FRAGMENT_SHADER "shaders/basic.frag"
-#define LIGHT_FRAGMENT_SHADER "shaders/light.frag"
-
-#include "Shader/uniform.hpp"
-
+using ShaderID = uint32_t;
+using ShaderGPUID = uint32_t;
 class Shader{
 public:
-    Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const std::string& userDefines = "");
-    ~Shader();
+    Shader() = delete;
 
-    void use() const;
-    unsigned int getID() const;
+    void use() const noexcept { manager.use(ID); }
 
+    // Texture is setUnifor("Name",slot);
     template<typename T>
-    void setUniform(const char* name,const T& a);
+    void setUniform(std::string_view name, const T& a) const noexcept;
     template<typename T>
-    void setUniform(const char* name,const T& a, const T& b);
-    template<typename T>
-    void setUniform(const char* name,const T& a, const T& b, const T& c);
-    template<typename T>
-    void setUniform(const char* name,const T* a);
+    void setUniformUnsafe(std::string_view name, const T& a) const noexcept;
 
-    Shader(const Shader&) = delete;
-    Shader& operator=(const Shader&) = delete;
-
-    Shader(Shader&& other) noexcept;
-    Shader& operator=(Shader&& other) noexcept;
+    Shader(const Shader&) noexcept = default;
+    Shader& operator=(const Shader&) noexcept = default;
 
 private:
-    unsigned int ID = 0;
-    std::unordered_map<std::string,Uniform> uniform_map;
-    
-    static unsigned int createShader(GLenum type, const char* ShaderSource, char* infoLog);
-    static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
+    friend class ShaderManager;
+    ShaderManager& manager;
+    ShaderID ID;
 
-    Uniform getUniform(const char* name);
+    Shader(ShaderManager& manager,ShaderID ID):manager(manager),ID(ID){}
 };
 
 template<typename T>
-void Shader::setUniform(const char* name, const T& a) {
-    getUniform(name).setValue(a);
+inline void Shader::setUniform(std::string_view name, const T& a) const noexcept{
+    manager.setUniform(ID,name,a);
 }
 
 template<typename T>
-void Shader::setUniform(const char* name, const T& a, const T& b) {
-    getUniform(name).setValue(a, b);
-}
-
-template<typename T>
-void Shader::setUniform(const char* name, const T& a, const T& b, const T& c) {
-    getUniform(name).setValue(a, b, c);
-}
-
-template<typename T>
-void Shader::setUniform(const char* name, const T* a) {
-    getUniform(name).setValue(a);
+inline void Shader::setUniformUnsafe(std::string_view name, const T& a) const noexcept{
+    manager.setUniformUnsafe(ID,name,a);
 }
 
 #endif
