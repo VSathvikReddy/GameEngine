@@ -1,0 +1,12 @@
+# Sprite Sheet Metadata Configuration
+# Format per entry: ID / Key = [Start_X] [Start_Y] [Width] [Height]
+# Note: Dimensions are calculated in absolute pixels from top-left (0,0)
+
+PALETTE_START
+
+0 = 0    0   32  32    # Player_Idle
+1 = 32   0   32  32    # Player_Walk_01
+2 = 64   0   32  32    # Player_Walk_02
+3 = 96   0   32  32    # Player_Jump
+
+PALETTE_END

@@ -5,6 +5,9 @@
 #include <GL/glew.h>
 
 #include <cassert>
+
+const Texture Texture::ERROR(0);
+
 uint32_t Texture::getWidth() const noexcept {
     assert(TextureManager::master != nullptr && "TextureManager context was never registered!");
     return TextureManager::master->m_textures_properties[m_id].width;

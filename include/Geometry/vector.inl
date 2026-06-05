@@ -1,15 +1,13 @@
 #ifdef VECTOR_N_H
 
-template<size_t N, typename T>
-constexpr Vector<N, T>::Vector() : data{} {
-
+template <size_t N, typename T>
+constexpr Vector<N, T>::Vector() : VectorStorage<N, T>() {
 }
 
-
-template<size_t N, typename T>
-template<typename... Args>
-constexpr Vector<N, T>::Vector(Args... args) : data{static_cast<T>(args)...} {
-    static_assert(sizeof...(args) == N, "Vector initialized with wrong number of elements!");
+template <size_t N, typename T>
+template <typename... Args>
+constexpr Vector<N, T>::Vector(Args... args) 
+    : VectorStorage<N, T>(static_cast<T>(args)...) {
 }
 
 template<size_t N, typename T>

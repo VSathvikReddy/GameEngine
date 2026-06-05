@@ -19,6 +19,8 @@ public:
 
     [[nodiscard]] static Texture load(std::string_view path);
 
+    const static Texture ERROR;
+
 private:
     friend class TextureManager;
     constexpr explicit Texture(uint32_t id) noexcept : m_id(id) {}
