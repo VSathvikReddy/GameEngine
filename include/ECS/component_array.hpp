@@ -1,59 +1,82 @@
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
-#include <cassert>
-#include <bitset>
-#include <tuple>
-#include <vector>
-#include <array>
-#include <unordered_map>
-#include <utility>
-#include <type_traits>
+#include "ECS/type.hpp"
 
-using Entity = uint32_t;
-const Entity MAX_ENTITIES = 5000;
-using ComponentType = uint8_t;
+#include <cassert>
+#include <unordered_map>
+#include <array>
+
+class IComponentArray {
+public:
+    virtual ~IComponentArray() = default;
+    virtual void destroyEntity(Entity entity) = 0;
+};
 
 template<typename T>
-class ComponentArray {
+class ComponentArray : public IComponentArray {
 public:
-    void insert(Entity entity, T component) {
-        assert(mEntityToIndexMap.find(entity) == mEntityToIndexMap.end() && "Component added to same entity more than once.");
-
-        size_t newIndex = mSize;
-        mEntityToIndexMap[entity] = newIndex;
-        mIndexToEntityMap[newIndex] = entity;
-        mComponentArray[newIndex] = component;
-        ++mSize;
-    }
-
-    void remove(Entity entity) {
-        assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Removing non-existent component.");
-
-        // Swap-and-pop idiom to maintain densely packed array
-        size_t indexOfRemovedEntity = mEntityToIndexMap[entity];
-        size_t indexOfLastElement = mSize - 1;
-        mComponentArray[indexOfRemovedEntity] = mComponentArray[indexOfLastElement];
-
-        Entity entityOfLastElement = mIndexToEntityMap[indexOfLastElement];
-        mEntityToIndexMap[entityOfLastElement] = indexOfRemovedEntity;
-        mIndexToEntityMap[indexOfRemovedEntity] = entityOfLastElement;
-
-        mEntityToIndexMap.erase(entity);
-        mIndexToEntityMap.erase(indexOfLastElement);
-
-        --mSize;
-    }
-
-    T& getData(Entity entity) {
-        assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
-        return mComponentArray[mEntityToIndexMap[entity]];
-    }
+    void insertData(Entity entity, T component);
+    void removeData(Entity entity);
+    T& getData(Entity entity);
+    const T& getData(Entity entity) const;
+    void destroyEntity(Entity entity) override;
 
 private:
-    std::array<T, MAX_ENTITIES> mComponentArray;
-    std::unordered_map<Entity, size_t> mEntityToIndexMap;
-    std::unordered_map<size_t, Entity> mIndexToEntityMap;
-    size_t mSize = 0;
+    std::array<T, MAX_ENTITIES> m_component_array;
+    std::unordered_map<Entity, size_t> m_entity_to_index_map;
+    std::unordered_map<size_t, Entity> m_index_to_entity_map;
+    size_t m_size = 0; 
 };
+
+
+
+
+
+
+
+template<typename T>
+void ComponentArray<T>::insertData(Entity entity, T component) {
+    assert(m_entity_to_index_map.find(entity) == m_entity_to_index_map.end() && "Component added to same entity more than once.");
+
+    size_t newIndex = m_size;
+    m_entity_to_index_map[entity] = newIndex;
+    m_index_to_entity_map[newIndex] = entity;
+    m_component_array[newIndex] = component;
+    ++m_size;
+}
+
+template<typename T>
+void ComponentArray<T>::removeData(Entity entity) {
+    assert(m_entity_to_index_map.find(entity) != m_entity_to_index_map.end() && "Removing non-existent component.");
+
+    size_t indexOfRemovedEntity = m_entity_to_index_map[entity];
+    size_t indexOfLastElement = m_size - 1;
+    m_component_array[indexOfRemovedEntity] = m_component_array[indexOfLastElement];
+
+    Entity entityOfLastElement = m_index_to_entity_map[indexOfLastElement];
+    m_entity_to_index_map[entityOfLastElement] = indexOfRemovedEntity;
+    m_index_to_entity_map[indexOfRemovedEntity] = entityOfLastElement;
+
+    m_entity_to_index_map.erase(entity);
+    m_index_to_entity_map.erase(indexOfLastElement);
+
+    --m_size;
+}
+
+template<typename T>
+T& ComponentArray<T>::getData(Entity entity) {
+    assert(m_entity_to_index_map.find(entity) != m_entity_to_index_map.end() && "Retrieving non-existent component.");
+    return m_component_array[m_entity_to_index_map[entity]];
+}
+template<typename T>
+const T& ComponentArray<T>::getData(Entity entity) const{
+    assert(m_entity_to_index_map.find(entity) != m_entity_to_index_map.end() && "Retrieving non-existent component.");
+    return m_component_array[m_entity_to_index_map.at(entity)];
+}
+
+template<typename T>
+void ComponentArray<T>::destroyEntity(Entity entity) {
+    if (m_entity_to_index_map.find(entity) != m_entity_to_index_map.end()) {
+        removeData(entity);
+    }
+}

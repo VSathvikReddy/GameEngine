@@ -1,105 +1,115 @@
 #include "ECS/ecs.hpp"
+#include "ECS/system.hpp"
+
 #include <iostream>
+#include <chrono>
+#include <random>
+#include <vector>
+#include <thread> // Required for std::this_thread::sleep_for
 
-struct Transform {
-    float x = 0.0f;
-    float y = 0.0f;
+// 1. Define standard data components
+struct Position { float x, y; };
+struct Velocity { float dx, dy; };
+
+// 2. Define a System utilizing your SSystem base
+class MovementSystem : public SSystem<std::vector<Entity>, Position, Velocity> {
+public:
+    MovementSystem(ECS& ecs) : SSystem<std::vector<Entity>, Position, Velocity>(ecs) {}
+
+    void update(ECS& ecs, float dt) {
+        // Iterate over the cached entities that match the system's signature
+        for (auto const& entity : m_entities) {
+            auto& pos = ecs.getComponent<Position>(entity);
+            auto const& vel = ecs.getComponent<Velocity>(entity);
+
+            pos.x += vel.dx * dt;
+            pos.y += vel.dy * dt;
+        }
+    }
 };
-
-struct Velocity {
-    float dx = 0.0f;
-    float dy = 0.0f;
-};
-
-struct Renderable {
-    char sprite = ' ';
-};
-
-
-using GameECS = ECS<Transform, Velocity, Renderable>;
 
 int main() {
-    std::cout << "--- Initializing Engine Test ---" << std::endl;
-    GameECS ecs;
+    std::cout << "Starting ECS Game Loop Stress Test...\n";
 
-    // ==========================================
-    // Test 1: Entity Creation and Batch Insertion
-    // ==========================================
-    Entity player = ecs.createEntity();
-    std::cout << "Created Entity ID: " << player << std::endl;
+    ECS ecs;
 
-    // Use your variadic addComponents! 
-    // This inserts data, sets masks, and updates signatures at the exact same time.
-    ecs.addComponents(player, Transform{10.0f, 20.0f}, Velocity{1.5f, -0.5f});
-    
-    std::cout << "Player has Transform? " << (ecs.hasComponent<Transform>(player) ? "Yes" : "No") << std::endl;
-    std::cout << "Player has Velocity? " << (ecs.hasComponent<Velocity>(player) ? "Yes" : "No") << std::endl;
-    std::cout << "Player has Renderable? " << (ecs.hasComponent<Renderable>(player) ? "Yes" : "No") << std::endl;
-    std::cout << "Current Signature Mask: " << ecs.getSignature(player) << std::endl;
+    // Register Components
+    ecs.registerComponent<Position>();
+    ecs.registerComponent<Velocity>();
 
-    // ==========================================
-    // Test 2: Variadic Modification
-    // ==========================================
-    std::cout << "\n--- Testing Batch Modification ---" << std::endl;
-    
-    // Instantly overwrite data blocks simultaneously with zero extra overhead
-    ecs.modifyComponents(player, Transform{100.0f, 200.0f}, Velocity{0.0f, 0.0f});
+    // Register System
+    auto movementSystem = ecs.createSystem<MovementSystem>();
 
-    auto& t = ecs.getComponent<Transform>(player);
-    auto& v = ecs.getComponent<Velocity>(player);
-    std::cout << "Modified Player Pos: (" << t.x << ", " << t.y << ")" << std::endl;
-    std::cout << "Modified Player Vel: (" << v.dx << ", " << v.dy << ")" << std::endl;
+    // --- SETUP: Spawn Entities ---
+    std::cout << "Spawning " << MAX_ENTITIES << " entities...\n";
+    std::vector<Entity> activeEntities;
+    activeEntities.reserve(MAX_ENTITIES);
 
-    // ==========================================
-    // Test 3: Engine Cloning using forEachArray
-    // ==========================================
-    std::cout << "\n--- Testing Compile-Time Tuple Cloning ---" << std::endl;
-    
-    // Clones the signature, unpacks the index sequence, and duplicates the memory
-    Entity clonePlayer = ecs.cloneEntity(player);
-    std::cout << "Created Clone Entity ID: " << clonePlayer << std::endl;
-    std::cout << "Clone Signature Mask:    " << ecs.getSignature(clonePlayer) << std::endl;
-
-    auto& cloneT = ecs.getComponent<Transform>(clonePlayer);
-    std::cout << "Cloned Player Pos: (" << cloneT.x << ", " << cloneT.y << ")" << std::endl;
-
-    // ==========================================
-    // Test 4: Pure Hot-Loop Simulation (Systems)
-    // ==========================================
-    std::cout << "\n--- Testing Hot Loop Execution ---" << std::endl;
-    
-    // Give the clone some velocity so it moves
-    ecs.modifyComponents(clonePlayer, Velocity{5.0f, 10.0f});
-
-    // Simulate what a real System loop does behind the scenes using our cached signature
-    auto physicsSignature = GameECS::getComponentSignature<Transform, Velocity>();
-    
-    // Mock Entity Pool Array (just player and clone for testing)
-    Entity activeEntities[] = { player, clonePlayer };
-
-    std::cout << "Running Physics System Tick..." << std::endl;
-    for (Entity entity : activeEntities) {
-        // Blazing fast bitwise checking. In Release builds, assertions vanish.
-        if ((ecs.getSignature(entity) & physicsSignature) == physicsSignature) {
-            auto& transform = ecs.getComponent<Transform>(entity);
-            auto& velocity = ecs.getComponent<Velocity>(entity);
-
-            // Execute raw cache-friendly math operations
-            transform.x += velocity.dx;
-            transform.y += velocity.dy;
-
-            std::cout << "  Entity " << entity << " moved to: (" << transform.x << ", " << transform.y << ")" << std::endl;
+    for (int i = 0; i < MAX_ENTITIES; ++i) {
+        Entity e = ecs.createEntity();
+        activeEntities.push_back(e);
+        ecs.addComponent(e, Position{0.0f, 0.0f});
+        
+        // Give the first entity a unique velocity so we can easily track it
+        if (i == 0) {
+            ecs.addComponent(e, Velocity{10.0f, 5.0f}); 
+        } else {
+            ecs.addComponent(e, Velocity{1.5f, 2.0f});
         }
     }
 
-    // ==========================================
-    // Test 5: Safe Destruction
-    // ==========================================
-    std::cout << "\n--- Testing Complete Destruction ---" << std::endl;
-    
-    ecs.destroyEntity(player);
-    std::cout << "Destroyed Player. Active Signature Mask: " << ecs.getSignature(player) << std::endl;
+    // --- GAME LOOP CONFIGURATION ---
+    constexpr int TARGET_FPS = 60;
+    constexpr double TARGET_FRAME_TIME_MS = 1000.0 / TARGET_FPS;
+    const float dt = 1.0f / TARGET_FPS; // Fixed delta time for systems
 
-    std::cout << "\n--- All Engine Mechanics Verified Successfully! ---" << std::endl;
+    bool isRunning = true;
+    int frameCount = 0;
+    int maxFramesToTest = 600; // Run for exactly 10 simulated seconds at 60fps
+
+    std::cout << "Entering Game Loop (Targeting " << TARGET_FPS << " FPS)...\n";
+    std::cout << "Simulating " << maxFramesToTest << " frames.\n\n";
+
+    auto loopStart = std::chrono::high_resolution_clock::now();
+
+    while (isRunning) {
+        // 1. Record the time at the start of the frame
+        auto frameStart = std::chrono::high_resolution_clock::now();
+
+        // 2. Process Systems
+        movementSystem->update(ecs, dt);
+
+        // 3. Calculate how long the frame actually took to process
+        auto frameEnd = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> processingTime = frameEnd - frameStart;
+
+        // --- TRACKING PRINT STATEMENT ---
+        // Print the progress of the first entity every 60 frames (1 second)
+        if (frameCount % 60 == 0) {
+            auto const& trackedPos = ecs.getComponent<Position>(activeEntities[0]);
+            std::cout << "[Simulated Time: " << (frameCount / 60) << "s] "
+                      << "Entity 0 is at Position: (" << trackedPos.x << ", " << trackedPos.y << ") "
+                      << "| Processed 5000 entities in: " << processingTime.count() << " ms\n";
+        }
+
+        // 4. Sleep if the frame processed faster than our target frame time
+        if (processingTime.count() < TARGET_FRAME_TIME_MS) {
+            std::chrono::duration<double, std::milli> sleepDuration(TARGET_FRAME_TIME_MS - processingTime.count());
+            std::this_thread::sleep_for(sleepDuration);
+        }
+
+        // End condition for the stress test
+        frameCount++;
+        if (frameCount >= maxFramesToTest) {
+            isRunning = false;
+        }
+    }
+
+    auto loopEnd = std::chrono::high_resolution_clock::now();
+    auto totalTime = std::chrono::duration_cast<std::chrono::seconds>(loopEnd - loopStart).count();
+
+    std::cout << "\nGame Loop finished successfully.\n";
+    std::cout << "Simulated 10 seconds in " << totalTime << " real-world seconds.\n";
+
     return 0;
 }
