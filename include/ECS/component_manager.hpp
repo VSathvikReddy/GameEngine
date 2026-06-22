@@ -16,7 +16,12 @@ public:
     template<typename... Args> Signature getSignature();
     
     template<typename T> void addComponent(Entity entity, T component);
+    template<typename T> void modifyComponent(Entity entity, T new_data);
     template<typename T> void removeComponent(Entity entity);
+
+    template<typename T> void sort(std::function<bool(const T&, const T&)> comp);
+    template<typename T> void sort();
+
     template<typename T> T& getComponent(Entity entity);
     template<typename T> const T& getComponent(Entity entity) const;
 
@@ -69,13 +74,33 @@ Signature ComponentManager::getSignature() {
 
 template<typename T>
 void ComponentManager::addComponent(Entity entity, T component) {
-    this->getComponentArray<T>()->insertData(entity, component);
+    this->getComponentArray<T>()->insertData(entity, std::move(component));
+}
+template<typename T>
+void ComponentManager::modifyComponent(Entity entity, T new_data){
+    this->getComponentArray<T>()->modifyData(entity,std::move(new_data));
 }
 
 template<typename T>
 void ComponentManager::removeComponent(Entity entity) {
     this->getComponentArray<T>()->removeData(entity);
 }
+
+
+
+
+template<typename T> 
+void ComponentManager::sort(std::function<bool(const T&, const T&)> comp){
+    this->getComponentArray<T>()->setCompareFunc(comp); // Can return
+}
+template<typename T> 
+void ComponentManager::sort(){
+    this->getComponentArray<T>()->sort();
+}
+
+
+
+
 
 template<typename T>
 T& ComponentManager::getComponent(Entity entity) {

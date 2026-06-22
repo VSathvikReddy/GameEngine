@@ -19,9 +19,13 @@ public:
 
 
     template<typename T> void registerComponent();
-    template<typename T> void addComponent(Entity entity, const T& data);
+    template<typename T> void addComponent(Entity entity, T data);
+    template<typename T> void modifyData(Entity entity,T new_data);       // Makes one copy and them moves it through, or fully moves if R alue ref passed
     template<typename T> bool hasComponent(Entity entity);
     template<typename T> void removeComponent(Entity entity);
+
+    template<typename T> void sort(std::function<bool(const T&, const T&)> comp);
+    template<typename T> void sort();
 
     template<typename T> T& getComponent(Entity entity);
     template<typename T> const T& getComponent(Entity entity) const;
@@ -51,11 +55,15 @@ void ECS::registerComponent(){
 }
 
 template<typename T> 
-void ECS::addComponent(Entity entity, const T& data){
+void ECS::addComponent(Entity entity, T data){
     ComponentType type = m_component_manager.getComponentType<T>();
     Signature newSign = m_entity_manager.addComponentType(entity, type);
-    m_component_manager.addComponent(entity,data);
+    m_component_manager.addComponent(entity,std::move(data));
     m_system_manager.addComponent(entity,newSign,type);
+}
+template<typename T> 
+void ECS::modifyData(Entity entity,T new_data){
+    m_component_manager.modifyComponent(entity,std::move(new_data));
 }
 template<typename T> 
 bool ECS::hasComponent(Entity entity){
@@ -69,6 +77,16 @@ void ECS::removeComponent(Entity entity){
     m_system_manager.removeComponent(entity,type);
 }
 
+
+
+template<typename T> 
+void ECS::sort(std::function<bool(const T&, const T&)> comp){
+    m_component_manager.sort(comp);
+}
+template<typename T> 
+void ECS::sort(){
+    m_component_manager.sort<T>();
+}
 
 
 
