@@ -3,7 +3,7 @@
 #include "ECS/type.hpp"
 #include "ECS/entity_manager.hpp"
 #include "ECS/component_manager.hpp"
-#include "ECS/system_manager.hpp"
+
 #include "ECS/view.hpp"
 
 #include <memory>
@@ -40,14 +40,12 @@ public:
     template<typename... Args> Signature getSignature();
 
 
-    template<typename T>  std::shared_ptr<T> createSystem();
-
     template<typename FirstComp, typename... OtherComps> View<FirstComp, OtherComps...> getView();
     template<typename FirstComp, typename... OtherComps> friend class View;
 private:
     EntityManager m_entity_manager;
     ComponentManager m_component_manager;
-    SystemManager m_system_manager;
+
 };
 
 #include "ECS/view.ipp"
@@ -61,7 +59,7 @@ inline Entity ECS::createEntity(){
     return m_entity_manager.createEntity();
 }
 inline void ECS::destroyEntity(Entity entity){
-    m_system_manager.destroyEntity(entity, m_entity_manager.getSignature(entity));
+
     m_component_manager.destroyEntity(entity);
     m_entity_manager.destroyEntity(entity);
 }
@@ -103,7 +101,7 @@ void ECS::addComponent(Entity entity, T data){
     ComponentType type = m_component_manager.getComponentType<T>();
     Signature newSign = m_entity_manager.addComponentType(entity, type);
     m_component_manager.addComponent(entity,std::move(data));
-    m_system_manager.addComponent(entity,newSign,type);
+
 }
 template<typename T> 
 void ECS::modifyData(Entity entity,T new_data){
@@ -114,7 +112,7 @@ void ECS::removeComponent(Entity entity){
     ComponentType type = m_component_manager.getComponentType<T>();
     m_entity_manager.removeComponentType(entity, type);
     m_component_manager.removeComponent<T>(entity);  
-    m_system_manager.removeComponent(entity,type);
+
 }
 
 
@@ -166,13 +164,6 @@ template<typename... Args> Signature ECS::getSignature(){
 }
 
 
-template<typename T>
-std::shared_ptr<T> ECS::createSystem(){
-    static_assert(std::is_constructible_v<T, ECS&>, "ERROR: The System type 'T' must have a constructor that accepts an 'ECS&'!");
-    std::shared_ptr<T> sys = std::make_shared<T>(*this);
-    m_system_manager.registerSystem(sys);
-    return sys;
-}
 
 
 template<typename FirstComp, typename... OtherComps> 

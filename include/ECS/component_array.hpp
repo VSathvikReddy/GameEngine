@@ -145,11 +145,12 @@ void ComponentArray<T>::removeData(Entity entity) {
         }
     } else {
         size_t lastIndex = m_size - 1;
-        
-        m_dense_component_array[removedIndex] = std::move(m_dense_component_array[lastIndex]);
-        m_dense_entity_array[removedIndex] = m_dense_entity_array[lastIndex];
-        
-        m_sparse_index_array[m_dense_entity_array[removedIndex]] = removedIndex;
+        if (removedIndex < lastIndex) {
+            m_dense_component_array[removedIndex] = std::move(m_dense_component_array[lastIndex]);
+            m_dense_entity_array[removedIndex] = m_dense_entity_array[lastIndex];
+            
+            m_sparse_index_array[m_dense_entity_array[removedIndex]] = removedIndex;
+        }
     }
 
     m_sparse_index_array[entity] = NULL_INDEX;
