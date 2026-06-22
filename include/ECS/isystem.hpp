@@ -13,5 +13,5 @@ protected:
     ISystem(Signature sig):target(sig) {}
 private:
     friend class SystemManager;
-    const Signature target;
+    Signature target;
 };
