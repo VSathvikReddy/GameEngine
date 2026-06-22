@@ -8,6 +8,8 @@
 #include <typeindex>
 #include <cassert>
 
+template<typename First, typename... Other> 
+class View;
 
 class ComponentManager {
 public:
@@ -32,6 +34,7 @@ private:
     ComponentType m_next_component_type = 0;
 
     template<typename T> std::shared_ptr<ComponentArray<T>> getComponentArray() const;
+    template<typename First, typename... Other> friend class View;
 };
 
 

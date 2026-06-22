@@ -1,6 +1,6 @@
 #pragma once
 
-#include "type.hpp"
+#include "ECS/type.hpp"
 
 class SystemManager;
 class ISystem{

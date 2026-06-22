@@ -1,2 +1,46 @@
 #pragma once
 
+#include "ECS/type.hpp"
+
+#include <type_traits>
+#include <memory>
+#include <tuple>
+
+class ECS;
+template<typename T> class ComponentArray;
+
+template<typename FirstComp, typename... OtherComps>
+class View {
+    using CleanFirst = std::remove_const_t<FirstComp>;
+    template<typename T> using ReturnRef = std::conditional_t<std::is_const_v<T>, const std::remove_const_t<T>&, std::remove_const_t<T>&>;
+public:
+    template<typename Func> void each(Func&& func);
+
+    class Iterator{
+    public:
+        Iterator(View& view, size_t index);
+
+        // You can use ReturnRef completely raw!
+        std::tuple<Entity, ReturnRef<FirstComp>, ReturnRef<OtherComps>...> operator*() const;
+
+        Iterator& operator++();
+        bool operator!=(const Iterator& other) const;
+
+    private:
+        ECS& ecs;
+        std::shared_ptr<ComponentArray<CleanFirst>> m_first_array;
+        size_t m_index;
+
+        void skipInvalid();
+    };
+
+    Iterator begin();
+    Iterator end();
+
+private:
+    ECS& ecs;
+    std::shared_ptr<ComponentArray<CleanFirst>> m_first_array;
+
+    View(ECS& ecs);
+    friend class ECS;
+};

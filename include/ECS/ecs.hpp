@@ -4,6 +4,7 @@
 #include "ECS/entity_manager.hpp"
 #include "ECS/component_manager.hpp"
 #include "ECS/system_manager.hpp"
+#include "ECS/view.hpp"
 
 #include <memory>
 
@@ -16,36 +17,79 @@ public:
     void destroyEntity(Entity entity);
     Signature getSignature(Entity entity);
 
+    bool hasComponent(Entity entity, ComponentType type);
+    template<typename T> bool hasComponent(Entity entity);
+    bool hasSignature(Entity entity, Signature sign);
+    template<typename... Args> bool hasSignature(Entity entity);
+
 
 
     template<typename T> void registerComponent();
-    template<typename T> void addComponent(Entity entity, T data);
-    template<typename T> void modifyData(Entity entity,T new_data);       // Makes one copy and them moves it through, or fully moves if R alue ref passed
-    template<typename T> bool hasComponent(Entity entity);
+    template<typename T> void addComponent(Entity entity, T data);         // Makes one copy and them moves it through, or fully moves if R alue ref passed
+    template<typename T> void modifyData(Entity entity,T new_data);       
+    
     template<typename T> void removeComponent(Entity entity);
 
     template<typename T> void sort(std::function<bool(const T&, const T&)> comp);
     template<typename T> void sort();
 
-    template<typename T> T& getComponent(Entity entity);
-    template<typename T> const T& getComponent(Entity entity) const;
+    template<typename T> T& getComponent(Entity entity); // Querry T, you get T&, Querry const T, you get const T&
+    template<typename T> T& getComponent(Entity entity) const; // Querry T, crash, Querry const T, you get const T&, enforcing the const in queery
 
     template<typename T> ComponentType getComponentType();
     template<typename... Args> Signature getSignature();
 
 
     template<typename T>  std::shared_ptr<T> createSystem();
+
+    template<typename FirstComp, typename... OtherComps> View<FirstComp, OtherComps...> getView();
+    template<typename FirstComp, typename... OtherComps> friend class View;
 private:
     EntityManager m_entity_manager;
     ComponentManager m_component_manager;
     SystemManager m_system_manager;
 };
 
+#include "ECS/view.ipp"
 
 template<typename... Args> 
 void ECS::init() {
     (this->registerComponent<Args>(), ...);
 }
+
+inline Entity ECS::createEntity(){
+    return m_entity_manager.createEntity();
+}
+inline void ECS::destroyEntity(Entity entity){
+    m_system_manager.destroyEntity(entity, m_entity_manager.getSignature(entity));
+    m_component_manager.destroyEntity(entity);
+    m_entity_manager.destroyEntity(entity);
+}
+inline Signature ECS::getSignature(Entity entity){
+    return m_entity_manager.getSignature(entity);
+}
+
+
+inline bool ECS::hasComponent(Entity entity, ComponentType type){
+    return m_entity_manager.hasComponent(entity, type);
+}
+template<typename T> 
+bool ECS::hasComponent(Entity entity){
+    return m_entity_manager.hasComponent(entity, m_component_manager.getComponentType<T>());
+}
+inline bool ECS::hasSignature(Entity entity, Signature sign){
+    return ((m_entity_manager.getSignature(entity)&sign) == sign);
+}
+template<typename... Args> 
+bool ECS::hasSignature(Entity entity){
+    return hasSignature(entity, m_component_manager.getSignature<Args...>() );
+}
+
+
+
+
+
+
 
 
 
@@ -66,16 +110,18 @@ void ECS::modifyData(Entity entity,T new_data){
     m_component_manager.modifyComponent(entity,std::move(new_data));
 }
 template<typename T> 
-bool ECS::hasComponent(Entity entity){
-    return m_entity_manager.hasComponent(entity, m_component_manager.getComponentType<T>());
-}
-template<typename T> 
 void ECS::removeComponent(Entity entity){
     ComponentType type = m_component_manager.getComponentType<T>();
     m_entity_manager.removeComponentType(entity, type);
     m_component_manager.removeComponent<T>(entity);  
     m_system_manager.removeComponent(entity,type);
 }
+
+
+
+
+
+
 
 
 
@@ -91,13 +137,22 @@ void ECS::sort(){
 
 
 
+
+// 1. The Mutable ECS Overload
 template<typename T> 
-T& ECS::getComponent(Entity entity){
-    return m_component_manager.getComponent<T>(entity);
+T& ECS::getComponent(Entity entity) {
+    if constexpr (std::is_const_v<T>) {
+        return std::as_const(m_component_manager).template getComponent<std::remove_const_t<T>>(entity);
+    } else {
+        return m_component_manager.template getComponent<std::remove_const_t<T>>(entity);
+    }
 }
+
+// 2. The Read-Only (const) ECS Overload
 template<typename T> 
-const T& ECS::getComponent(Entity entity) const{
-    return m_component_manager.getComponent<T>(entity);
+T& ECS::getComponent(Entity entity) const {
+    static_assert(std::is_const_v<T>, "ERROR: You are querying a const ECS. You must explicitly request a const component (e.g., getComponent<const Position>()).");
+    return m_component_manager.template getComponent<std::remove_const_t<T>>(entity);
 }
 
 
@@ -117,4 +172,10 @@ std::shared_ptr<T> ECS::createSystem(){
     std::shared_ptr<T> sys = std::make_shared<T>(*this);
     m_system_manager.registerSystem(sys);
     return sys;
+}
+
+
+template<typename FirstComp, typename... OtherComps> 
+View<FirstComp, OtherComps...> ECS::getView(){
+    return View<FirstComp, OtherComps...>(*this);
 }

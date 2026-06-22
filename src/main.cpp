@@ -84,6 +84,7 @@ int main() {
             isRunning = false;
         }
     }
+    auto vw = ecs.getView<Position>();
 
     std::cout << "\nGame Loop finished successfully.\n";
     std::cout << "Simulated 10 seconds in " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - loopStart).count() << " real-world seconds.\n";

@@ -15,23 +15,29 @@ public:
     virtual void destroyEntity(Entity entity) = 0;
 };
 
+template<typename First, typename... Other> 
+class View;
+
 template<typename T>
 class ComponentArray : public IComponentArray {
 public:
-    ComponentArray();
+    ComponentArray();  // Fills the sparse array and sort buffer
 
-    void insertData(Entity entity, T component);
-    void modifyData(Entity entity, T new_data);
-    void removeData(Entity entity);
+    void insertData(Entity entity, T component);    // Inerts at the right place (or end)
+    void modifyData(Entity entity, T new_data);     // Modifies the data and puts it in the right place
+    void removeData(Entity entity);                 // Removes tha data and moves all to right (or swap and pop)
 
-    T& getData(Entity entity);
+    T& getData(Entity entity);                      // Only to be used when the modification doesnt effect order, (or call sort after using)
     const T& getData(Entity entity) const;
-    void destroyEntity(Entity entity) override;
+    void destroyEntity(Entity entity) override;     // remove data if entity exists
 
-    bool setCompareFunc(std::function<bool(const T&, const T&)> comp);
-    void sort();
+    bool setCompareFunc(std::function<bool(const T&, const T&)> comp);   // Set function and call sort
+    void sort();                                   
+
+    size_t size() const;
 
 private:
+    // Does not allow for components without default constructor, EnTT allocated raw memory istead of this
     std::array<T, MAX_ENTITIES> m_dense_component_array;
 
     std::array<Entity, MAX_ENTITIES> m_dense_entity_array;
@@ -43,6 +49,7 @@ private:
     std::function<bool(const T&, const T&)> m_comparator;
     std::vector<size_t> m_sort_buffer;
 
+    template<typename First, typename... Other> friend class View;
 };
 
 
@@ -189,6 +196,7 @@ bool ComponentArray<T>::setCompareFunc(std::function<bool(const T&, const T&)> c
 
 template<typename T>
 void ComponentArray<T>::sort(){
+    assert( m_comparator && "Calling sort without existing sort func");
     m_sort_buffer.resize(m_size);
     std::iota(m_sort_buffer.begin(), m_sort_buffer.end(), 0);
 
@@ -225,4 +233,9 @@ void ComponentArray<T>::sort(){
     for (size_t i = 0; i < m_size; ++i) {
         m_sparse_index_array[m_dense_entity_array[i]] = i;
     }
+}
+
+template<typename T>
+size_t ComponentArray<T>::size() const{
+    return this->m_size;
 }
