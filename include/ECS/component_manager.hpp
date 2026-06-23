@@ -13,7 +13,7 @@ class View;
 
 class ComponentManager {
 public:
-    template<typename T> void registerComponent();
+    template<typename T> void registerComponent(Entity max_components = MAX_ENTITIES);
     template<typename T> ComponentType getComponentType();
     template<typename... Args> Signature getSignature();
     
@@ -21,8 +21,7 @@ public:
     template<typename T> void modifyComponent(Entity entity, T new_data);
     template<typename T> void removeComponent(Entity entity);
 
-    template<typename T> void sort(std::function<bool(const T&, const T&)> comp);
-    template<typename T> void sort();
+    template<typename T, typename Compare> void sort(Compare comp);
 
     template<typename T> T& getComponent(Entity entity);
     template<typename T> const T& getComponent(Entity entity) const;
@@ -39,12 +38,12 @@ private:
 
 
 template<typename T>
-void ComponentManager::registerComponent() {
+void ComponentManager::registerComponent(Entity max_components) {
     std::type_index typeName = std::type_index(typeid(T));
     assert(m_component_types.find(typeName) == m_component_types.end() && "Registering component type more than once.");
 
     m_component_types.insert({typeName, m_next_component_type});
-    m_component_arrays.insert({typeName, std::make_shared<ComponentArray<T>>()});
+    m_component_arrays.insert({typeName, std::make_shared<ComponentArray<T>>(max_components)});
     ++m_next_component_type;
 }
 
@@ -91,14 +90,9 @@ void ComponentManager::removeComponent(Entity entity) {
 
 
 
-
-template<typename T> 
-void ComponentManager::sort(std::function<bool(const T&, const T&)> comp){
-    this->getComponentArray<T>()->setCompareFunc(comp); // Can return
-}
-template<typename T> 
-void ComponentManager::sort(){
-    this->getComponentArray<T>()->sort();
+template<typename T, typename Compare> 
+void ComponentManager::sort(Compare comp){
+    this->getComponentArray<T>()->sort(comp);
 }
 
 

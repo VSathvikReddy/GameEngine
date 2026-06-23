@@ -6,7 +6,7 @@
 
 template<typename FirstComp, typename... OtherComps>
 VIEW_SCOPE::View(ECS& ecs_ref) : ecs(ecs_ref) {
-    m_first_array = ecs.m_component_manager.template getComponentArray<CleanFirst>();
+    m_first_array = ecs.m_component_manager.template getComponentArray<Clean<FirstComp>>();
 }
 
 template<typename FirstComp, typename... OtherComps>
@@ -20,7 +20,7 @@ void VIEW_SCOPE::each(Func&& func) {
     for (size_t i = 0; i < size; ++i) {
         Entity entity = dense_entities[i];
         
-        if (ecs.hasSignature<FirstComp, OtherComps...>(entity)) {
+        if (ecs.hasSignature<Clean<FirstComp>, Clean<OtherComps>...>(entity)) {
             func(entity, 
                  static_cast<ReturnRef<FirstComp>>(m_first_array->getData(entity)), 
                  static_cast<ReturnRef<OtherComps>>(ecs.m_component_manager.template getComponentArray<std::remove_const_t<OtherComps>>()->getData(entity))...);
@@ -82,7 +82,7 @@ template<typename FirstComp, typename... OtherComps>
 void VIEW_SCOPE::Iterator::skipInvalid() {
     while (m_index < m_first_array->size()) {
         // FIXED: Checking the signature of the Entity ID
-        if (ecs.hasSignature<FirstComp, OtherComps...>(m_first_array->m_dense_entity_array[m_index])) break; 
+        if (ecs.hasSignature<std::remove_const_t<FirstComp>, std::remove_const_t<OtherComps>...>(m_first_array->m_dense_entity_array[m_index])) break; 
         ++m_index;
     }   
 }

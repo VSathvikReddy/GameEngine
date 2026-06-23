@@ -8,6 +8,11 @@
 
 #include <memory>
 
+template<typename T>
+struct Comp {
+    size_t capacity = MAX_ENTITIES; // Defaults to the massive array size
+};
+
 class ECS{
 public:
     template<typename... Args> 
@@ -24,14 +29,13 @@ public:
 
 
 
-    template<typename T> void registerComponent();
+    template<typename T> void registerComponent(Entity max_components = MAX_ENTITIES);
     template<typename T> void addComponent(Entity entity, T data);         // Makes one copy and them moves it through, or fully moves if R alue ref passed
     template<typename T> void modifyData(Entity entity,T new_data);       
     
     template<typename T> void removeComponent(Entity entity);
 
-    template<typename T> void sort(std::function<bool(const T&, const T&)> comp);
-    template<typename T> void sort();
+    template<typename T, typename Compare> void sort(Compare comp);
 
     template<typename T> T& getComponent(Entity entity); // Querry T, you get T&, Querry const T, you get const T&
     template<typename T> T& getComponent(Entity entity) const; // Querry T, crash, Querry const T, you get const T&, enforcing the const in queery
@@ -92,16 +96,15 @@ bool ECS::hasSignature(Entity entity){
 
 
 template<typename T> 
-void ECS::registerComponent(){
-    m_component_manager.registerComponent<T>();
+void ECS::registerComponent(Entity max_components){
+    m_component_manager.registerComponent<T>(max_components);
 }
 
 template<typename T> 
 void ECS::addComponent(Entity entity, T data){
     ComponentType type = m_component_manager.getComponentType<T>();
-    Signature newSign = m_entity_manager.addComponentType(entity, type);
     m_component_manager.addComponent(entity,std::move(data));
-
+    Signature newSign = m_entity_manager.addComponentType(entity, type);
 }
 template<typename T> 
 void ECS::modifyData(Entity entity,T new_data){
@@ -110,9 +113,8 @@ void ECS::modifyData(Entity entity,T new_data){
 template<typename T> 
 void ECS::removeComponent(Entity entity){
     ComponentType type = m_component_manager.getComponentType<T>();
-    m_entity_manager.removeComponentType(entity, type);
     m_component_manager.removeComponent<T>(entity);  
-
+    m_entity_manager.removeComponentType(entity, type);
 }
 
 
@@ -123,13 +125,9 @@ void ECS::removeComponent(Entity entity){
 
 
 
-template<typename T> 
-void ECS::sort(std::function<bool(const T&, const T&)> comp){
-    m_component_manager.sort(comp);
-}
-template<typename T> 
-void ECS::sort(){
-    m_component_manager.sort<T>();
+template<typename T, typename Compare> 
+void ECS::sort(Compare comp){
+    m_component_manager.sort<T>(comp);
 }
 
 
