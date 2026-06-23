@@ -36,6 +36,7 @@ public:
     template<typename T> void removeComponent(Entity entity);
 
     template<typename T, typename Compare> void sort(Compare comp);
+    template<typename T, typename Compare> void sortFull(Compare comp);
 
     template<typename T> T& getComponent(Entity entity); // Querry T, you get T&, Querry const T, you get const T&
     template<typename T> T& getComponent(Entity entity) const; // Querry T, crash, Querry const T, you get const T&, enforcing the const in queery
@@ -125,9 +126,14 @@ void ECS::removeComponent(Entity entity){
 
 
 
-template<typename T, typename Compare> 
-void ECS::sort(Compare comp){
+template<typename T, typename Compare>
+void ECS::sort(Compare comp) {
     m_component_manager.sort<T>(comp);
+}
+ 
+template<typename T, typename Compare>
+void ECS::sortFull(Compare comp) {
+    m_component_manager.sortFull<T>(comp);
 }
 
 

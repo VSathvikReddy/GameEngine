@@ -22,6 +22,7 @@ public:
     template<typename T> void removeComponent(Entity entity);
 
     template<typename T, typename Compare> void sort(Compare comp);
+    template<typename T, typename Compare> void sortFull(Compare comp);
 
     template<typename T> T& getComponent(Entity entity);
     template<typename T> const T& getComponent(Entity entity) const;
@@ -90,9 +91,14 @@ void ComponentManager::removeComponent(Entity entity) {
 
 
 
-template<typename T, typename Compare> 
-void ComponentManager::sort(Compare comp){
-    this->getComponentArray<T>()->sort(comp);
+template<typename T, typename Compare>
+void ComponentManager::sort(Compare comp) {
+    getComponentArray<T>()->sort(comp);
+}
+ 
+template<typename T, typename Compare>
+void ComponentManager::sortFull(Compare comp) {
+    getComponentArray<T>()->sortFull(comp);
 }
 
 

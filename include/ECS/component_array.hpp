@@ -34,7 +34,9 @@ public:
     size_t size() const;
 
     template<typename Compare>
-    void sort(Compare comp); 
+    void sort(Compare comp); //insertion sort. O(n) when nearly sorted, O(n*k) where k is max  displacement.
+    template<typename Compare>
+    void sortFull(Compare comp);   //O(n log n) cycle-decomposition sort. 
 private:
     std::vector<T> m_dense_component_array;
     std::vector<Entity> m_dense_entity_array;
@@ -44,6 +46,8 @@ private:
     size_t m_size = 0; 
     size_t m_max_capacity = 0;
     static constexpr size_t NULL_INDEX = static_cast<size_t>(-1);
+
+    void rebuildSparseIndex();
 
     template<typename First, typename... Other> friend class View;
 };
@@ -136,53 +140,73 @@ size_t ComponentArray<T>::size() const {
     return m_size;
 }
 
+template<typename T>
+void ComponentArray<T>::rebuildSparseIndex() {
+    for (size_t i = 0; i < m_size; ++i)
+        m_sparse_index_array[m_dense_entity_array[i]] = i;
+}
 
 
 template<typename T>
 template<typename Compare>
 void ComponentArray<T>::sort(Compare comp) {
     if (m_size <= 1) return;
-
-    // Build a permutation index sorted by comp
+ 
+    for (size_t i = 1; i < m_size; ++i) {
+        T      temp_comp   = std::move(m_dense_component_array[i]);
+        Entity temp_entity = m_dense_entity_array[i];
+ 
+        size_t j = i;
+        while (j > 0 && comp(temp_comp, m_dense_component_array[j - 1])) {
+            m_dense_component_array[j] = std::move(m_dense_component_array[j - 1]);
+            m_dense_entity_array[j]    = m_dense_entity_array[j - 1];
+            --j;
+        }
+ 
+        m_dense_component_array[j] = std::move(temp_comp);
+        m_dense_entity_array[j]    = temp_entity;
+    }
+ 
+    rebuildSparseIndex();
+}
+ 
+// -----------------------------------------------------------------------------
+//  sortFull — O(n log n) cycle-decomposition sort (cold / random data)
+// -----------------------------------------------------------------------------
+ 
+template<typename T>
+template<typename Compare>
+void ComponentArray<T>::sortFull(Compare comp) {
+    if (m_size <= 1) return;
+ 
     std::vector<size_t> perm(m_size);
     std::iota(perm.begin(), perm.end(), 0);
     std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
         return comp(m_dense_component_array[a], m_dense_component_array[b]);
     });
-
-    // Apply the permutation in-place using cycle decomposition
+ 
     std::vector<bool> visited(m_size, false);
-
+ 
     for (size_t i = 0; i < m_size; ++i) {
-        if (visited[i] || perm[i] == i) {
-            visited[i] = true;
-            continue;
-        }
-
-        // Walk the cycle starting at i
+        if (visited[i] || perm[i] == i) { visited[i] = true; continue; }
+ 
         size_t cycle_start = i;
-        T    temp_comp   = std::move(m_dense_component_array[i]);
+        T      temp_comp   = std::move(m_dense_component_array[i]);
         Entity temp_entity = m_dense_entity_array[i];
-
+ 
         size_t current = i;
         while (perm[current] != cycle_start) {
             size_t next = perm[current];
-
             m_dense_component_array[current] = std::move(m_dense_component_array[next]);
             m_dense_entity_array[current]    = m_dense_entity_array[next];
-
             visited[current] = true;
             current = next;
         }
-
-        // Place the saved head element at the cycle's tail slot
+ 
         m_dense_component_array[current] = std::move(temp_comp);
         m_dense_entity_array[current]    = temp_entity;
         visited[current] = true;
     }
-
-    // Rebuild sparse index from the (now correct) dense entity array
-    for (size_t i = 0; i < m_size; ++i) {
-        m_sparse_index_array[m_dense_entity_array[i]] = i;
-    }
+ 
+    rebuildSparseIndex();
 }
