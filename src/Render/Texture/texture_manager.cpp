@@ -70,10 +70,9 @@ inline void TextureManager::use(TextureID id, int slot) const{
     glBindTexture(GL_TEXTURE_2D, m_gpu_texture_ids[id]);
 }
 
-TextureID TextureManager::loadTexture(std::string_view path) {
+TextureID TextureManager::loadTexture(const std::string& path) {
 
-    std::string key(path);
-    auto it = this->m_name_to_ID.find(key);
+    auto it = this->m_name_to_ID.find(path);
     if (it != this->m_name_to_ID.end()) {
         return it->second;
     }
@@ -83,7 +82,7 @@ TextureID TextureManager::loadTexture(std::string_view path) {
     int nrChannels = 0;
 
     // stbi_set_flip_vertically_on_load(true); // Uncomment if your engine requires UV flips
-    unsigned char* data = stbi_load(key.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 
     if (!data){
         std::cerr << "Failed to load texture: " << path << std::endl;
@@ -132,7 +131,7 @@ TextureID TextureManager::loadTexture(std::string_view path) {
     this->m_textures_properties.emplace_back(static_cast<uint32_t>(width),static_cast<uint32_t>(height));
     this->m_gpu_texture_ids.push_back(gl_texture_id);
     
-    this->m_name_to_ID[key] = assigned_id;
+    this->m_name_to_ID[path] = assigned_id;
 
     return (assigned_id);
 }

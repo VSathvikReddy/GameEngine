@@ -15,7 +15,7 @@ public:
 
     void clearTextures() noexcept;
     
-    [[nodiscard]] TextureID loadTexture(std::string_view path);
+    [[nodiscard]] TextureID loadTexture(const std::string& path);
     [[nodiscard]] uint32_t getTextureWidth(TextureID id) const;
     [[nodiscard]] uint32_t getTextureHeight(TextureID id) const;
 
@@ -31,7 +31,7 @@ inline void MasterRenderer::clearTextures() noexcept {
     m_texture_manager.clear();
 }
 
-inline TextureID MasterRenderer::loadTexture(std::string_view path) {
+inline TextureID MasterRenderer::loadTexture(const std::string& path) {
     return m_texture_manager.loadTexture(path);
 }
 

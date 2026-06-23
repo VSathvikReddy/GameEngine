@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <cstdint>
+#include <iostream>
 
 using TextureID = uint32_t;
 constexpr TextureID ERROR_TEXTURE = 0;
@@ -18,7 +19,7 @@ public:
     TextureManager& operator=(const TextureManager&) = delete;
 
     void clear() noexcept;
-    TextureID loadTexture(std::string_view path);
+    TextureID loadTexture(const std::string& path);
 
     uint32_t getWidth(TextureID id) const;
     uint32_t getHeight(TextureID id) const;

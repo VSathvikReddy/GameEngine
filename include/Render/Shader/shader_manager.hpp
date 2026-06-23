@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include <cstdint>
+#include <iostream>
 
 using ShaderID = uint32_t;
 using ShaderGPUID = uint32_t;

@@ -93,7 +93,7 @@ ShaderID ShaderManager::loadShader(const std::filesystem::path& folder, const st
     std::string vertexShaderSource = PreProcess(vertFilePath.string().c_str(), std::string(userDefines));
     std::string fragmentShaderSource = PreProcess(fragFilePath.string().c_str(), std::string(userDefines));
 
-    assertShaderPreProcessSucess(vertexShaderSource, fragmentShaderSource, shaderName); if (vertexShaderSource.empty() || fragmentShaderSource.empty()) {return;}
+    assertShaderPreProcessSucess(vertexShaderSource, fragmentShaderSource, shaderName); if (vertexShaderSource.empty() || fragmentShaderSource.empty()) {return ERROR_SHADER;}
 
 #ifndef NDEBUG
     char infoLog[512];
