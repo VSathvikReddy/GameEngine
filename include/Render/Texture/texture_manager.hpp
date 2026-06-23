@@ -37,3 +37,24 @@ private:
 
     void initializeDefaultTexture();
 };
+
+
+inline uint32_t TextureManager::getWidth(TextureID id) const {
+#ifndef NDEBUG
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    return m_textures_properties[id].width;
+}
+
+inline uint32_t TextureManager::getHeight(TextureID id) const {
+#ifndef NDEBUG
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    return m_textures_properties[id].height;
+}

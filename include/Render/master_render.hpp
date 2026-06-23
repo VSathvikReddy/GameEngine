@@ -10,11 +10,9 @@ public:
     MasterRenderer();
     ~MasterRenderer() = default;
 
-    // Rule of 5: Prevent accidental copies of the renderer system
     MasterRenderer(const MasterRenderer&) = delete;
     MasterRenderer& operator=(const MasterRenderer&) = delete;
 
-    // --- Public Texture API Facade (Excludes 'use') ---
     void clearTextures() noexcept;
     
     [[nodiscard]] TextureID loadTexture(std::string_view path);

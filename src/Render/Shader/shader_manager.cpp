@@ -15,31 +15,6 @@ ShaderManager::~ShaderManager() noexcept{
 }
 
 
-ShaderID ShaderManager::getShader(const std::string& shaderName) const{
-    auto it = string_to_shader_ID.find(shaderName);
-    if (it != string_to_shader_ID.end()) {
-        return it->second;
-    }
-#ifndef NDEBUG
-    std::cerr << "[Shader Error] Attempted to get unregistered or failed shader: '" << shaderName << "'. Returning ERROR_SHADER.\n";
-#endif
-    return ERROR_SHADER;
-}
-
-void ShaderManager::clear(){
-    glUseProgram(0);
-    active_shader_ID = 0;
-}
-
-void ShaderManager::use(ShaderID ID){
-    assert(ID < shader_data.size() && "Out of bounds ShaderID execution request!");
-    assert(ID != ERROR_SHADER && "ERROR_SHADER being used");
-    if(ID == active_shader_ID ) return;
-
-    glUseProgram(shader_data.at(ID).programID);
-    active_shader_ID = ID;
-}
-
 
 
 

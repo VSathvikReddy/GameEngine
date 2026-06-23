@@ -58,6 +58,18 @@ void TextureManager::initializeDefaultTexture() {
     m_name_to_ID["__fallback_error__"] = 0;
 }
 
+
+inline void TextureManager::use(TextureID id, int slot) const{
+#ifndef NDEBUG // If we are NOT in a Release build
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, m_gpu_texture_ids[id]);
+}
+
 TextureID TextureManager::loadTexture(std::string_view path) {
 
     std::string key(path);
@@ -125,33 +137,3 @@ TextureID TextureManager::loadTexture(std::string_view path) {
     return (assigned_id);
 }
 
-uint32_t TextureManager::getWidth(TextureID id) const {
-#ifndef NDEBUG
-    if (id >= m_gpu_texture_ids.size()) {
-        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
-        id = ERROR_TEXTURE; 
-    }
-#endif
-    return m_textures_properties[id].width;
-}
-
-uint32_t TextureManager::getHeight(TextureID id) const {
-#ifndef NDEBUG
-    if (id >= m_gpu_texture_ids.size()) {
-        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
-        id = ERROR_TEXTURE; 
-    }
-#endif
-    return m_textures_properties[id].height;
-}
-
-void TextureManager::use(TextureID id, int slot) const{
-#ifndef NDEBUG // If we are NOT in a Release build
-    if (id >= m_gpu_texture_ids.size()) {
-        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
-        id = ERROR_TEXTURE; 
-    }
-#endif
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, m_gpu_texture_ids[id]);
-}
