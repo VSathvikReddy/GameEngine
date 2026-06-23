@@ -41,8 +41,8 @@ public:
     template<typename T> T& getComponent(Entity entity); // Querry T, you get T&, Querry const T, you get const T&
     template<typename T> T& getComponent(Entity entity) const; // Querry T, crash, Querry const T, you get const T&, enforcing the const in queery
 
-    template<typename T> ComponentType getComponentType();
-    template<typename... Args> Signature getSignature();
+    template<typename T> ComponentType getComponentType() const;
+    template<typename... Args> Signature getSignature() const;
 
 
     template<typename FirstComp, typename... OtherComps> View<FirstComp, OtherComps...> getView();
@@ -103,9 +103,8 @@ void ECS::registerComponent(Entity max_components){
 
 template<typename T> 
 void ECS::addComponent(Entity entity, T data){
-    ComponentType type = m_component_manager.getComponentType<T>();
     m_component_manager.addComponent(entity,std::move(data));
-    Signature newSign = m_entity_manager.addComponentType(entity, type);
+    m_entity_manager.addComponentType(entity, m_component_manager.getComponentType<T>());
 }
 template<typename T> 
 void ECS::modifyData(Entity entity,T new_data){
@@ -113,9 +112,8 @@ void ECS::modifyData(Entity entity,T new_data){
 }
 template<typename T> 
 void ECS::removeComponent(Entity entity){
-    ComponentType type = m_component_manager.getComponentType<T>();
     m_component_manager.removeComponent<T>(entity);  
-    m_entity_manager.removeComponentType(entity, type);
+    m_entity_manager.removeComponentType(entity, m_component_manager.getComponentType<T>());
 }
 
 
@@ -160,10 +158,10 @@ T& ECS::getComponent(Entity entity) const {
 
 
 
-template<typename T> ComponentType ECS::getComponentType(){
+template<typename T> ComponentType ECS::getComponentType() const{
     return m_component_manager.getComponentType<T>();
 }
-template<typename... Args> Signature ECS::getSignature(){
+template<typename... Args> Signature ECS::getSignature() const{
     return m_component_manager.getSignature<Args...>();
 }
 

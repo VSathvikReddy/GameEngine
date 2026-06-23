@@ -12,12 +12,11 @@ VIEW_SCOPE::View(ECS& ecs_ref) : ecs(ecs_ref) {
 template<typename FirstComp, typename... OtherComps>
 template<typename Func>
 void VIEW_SCOPE::each(Func&& func) {
-    size_t size = m_first_array->size();
     
     // FIXED: Now correctly pointing to the dense Entity ID array
     const auto& dense_entities = m_first_array->m_dense_entity_array;
 
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i < m_first_array->size(); ++i) {
         Entity entity = dense_entities[i];
         
         if (ecs.hasSignature<Clean<FirstComp>, Clean<OtherComps>...>(entity)) {

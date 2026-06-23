@@ -14,8 +14,8 @@ class View;
 class ComponentManager {
 public:
     template<typename T> void registerComponent(Entity max_components = MAX_ENTITIES);
-    template<typename T> ComponentType getComponentType();
-    template<typename... Args> Signature getSignature();
+    template<typename T> ComponentType getComponentType() const;
+    template<typename... Args> Signature getSignature() const;
     
     template<typename T> void addComponent(Entity entity, T component);
     template<typename T> void modifyComponent(Entity entity, T new_data);
@@ -49,15 +49,15 @@ void ComponentManager::registerComponent(Entity max_components) {
 }
 
 template<typename T>
-ComponentType ComponentManager::getComponentType() {
+ComponentType ComponentManager::getComponentType() const{
     std::type_index typeName = std::type_index(typeid(T));
     assert(m_component_types.find(typeName) != m_component_types.end() && "Component not registered before use.");
 
-    return m_component_types[typeName];
+    return m_component_types.at(typeName);
 }
 
 template<typename... Args>
-Signature ComponentManager::getSignature() {
+Signature ComponentManager::getSignature() const{
     Signature signature;
     (signature.set(getComponentType<Args>(), true), ...);
     return signature;
