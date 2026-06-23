@@ -16,36 +16,35 @@ struct Comp {
 class ECS{
 public:
     template<typename... Args> 
-    void init();
+    void init(); // For entites with MAX_ENTITES as capacity
 
     Entity createEntity();
-    void destroyEntity(Entity entity);
-    Signature getSignature(Entity entity);
+    void destroyEntity(Entity entity);     // Destroys all the data regarding the entity immediatly
+    Signature getSignature(Entity entity) const;    // Doesnt check for non-existant entity querries
 
-    bool hasComponent(Entity entity, ComponentType type);
-    template<typename T> bool hasComponent(Entity entity);
-    bool hasSignature(Entity entity, Signature sign);
-    template<typename... Args> bool hasSignature(Entity entity);
+    bool hasComponent(Entity entity, ComponentType type) const; // Same as above
+    template<typename T> bool hasComponent(Entity entity) const;
+    bool hasSignature(Entity entity, Signature sign) const;
+    template<typename... Args> bool hasSignature(Entity entity) const;
 
 
 
-    template<typename T> void registerComponent(Entity max_components = MAX_ENTITIES);
-    template<typename T> void addComponent(Entity entity, T data);         // Makes one copy and them moves it through, or fully moves if R alue ref passed
-    template<typename T> void modifyData(Entity entity,T new_data);       
-    
+    template<typename T> void registerComponent(Entity max_components = MAX_ENTITIES);  //Manual Registraiton for comonents with smaller count of instances
+    template<typename T> void addComponent(Entity entity, T data);          // Makes one copy and them moves it through, or fully moves if R alue ref passed
+    template<typename T> void modifyData(Entity entity,T new_data);         // Same
     template<typename T> void removeComponent(Entity entity);
 
-    template<typename T, typename Compare> void sort(Compare comp);
-    template<typename T, typename Compare> void sortFull(Compare comp);
+    template<typename T, typename Compare> void sort(Compare comp);         // Insertion sort
+    template<typename T, typename Compare> void sortFull(Compare comp);     // std::sort
 
-    template<typename T> T& getComponent(Entity entity); // Querry T, you get T&, Querry const T, you get const T&
-    template<typename T> T& getComponent(Entity entity) const; // Querry T, crash, Querry const T, you get const T&, enforcing the const in queery
+    template<typename T> T& getComponent(Entity entity); // suppoerts get<T> and get<const T> to get T& and const T& respectively
+    template<typename T> T& getComponent(Entity entity) const; // if ecs is const, only querry <const T> to get const T& otherwise throw eroor
 
     template<typename T> ComponentType getComponentType() const;
     template<typename... Args> Signature getSignature() const;
 
-
-    template<typename FirstComp, typename... OtherComps> View<FirstComp, OtherComps...> getView();
+    template<typename T> size_t size() const;
+    template<typename FirstComp, typename... OtherComps> View<FirstComp, OtherComps...> getView(); // Refer to view class
     template<typename FirstComp, typename... OtherComps> friend class View;
 private:
     EntityManager m_entity_manager;
@@ -68,23 +67,23 @@ inline void ECS::destroyEntity(Entity entity){
     m_component_manager.destroyEntity(entity);
     m_entity_manager.destroyEntity(entity);
 }
-inline Signature ECS::getSignature(Entity entity){
+inline Signature ECS::getSignature(Entity entity) const{
     return m_entity_manager.getSignature(entity);
 }
 
 
-inline bool ECS::hasComponent(Entity entity, ComponentType type){
+inline bool ECS::hasComponent(Entity entity, ComponentType type) const{
     return m_entity_manager.hasComponent(entity, type);
 }
 template<typename T> 
-bool ECS::hasComponent(Entity entity){
+bool ECS::hasComponent(Entity entity) const{
     return m_entity_manager.hasComponent(entity, m_component_manager.getComponentType<T>());
 }
-inline bool ECS::hasSignature(Entity entity, Signature sign){
+inline bool ECS::hasSignature(Entity entity, Signature sign) const{
     return ((m_entity_manager.getSignature(entity)&sign) == sign);
 }
 template<typename... Args> 
-bool ECS::hasSignature(Entity entity){
+bool ECS::hasSignature(Entity entity) const{
     return hasSignature(entity, m_component_manager.getSignature<Args...>() );
 }
 
@@ -102,7 +101,7 @@ void ECS::registerComponent(Entity max_components){
 }
 
 template<typename T> 
-void ECS::addComponent(Entity entity, T data){
+void ECS::addComponent(Entity entity, T data){ // First compo manager then entity manager, incase error, no corruption
     m_component_manager.addComponent(entity,std::move(data));
     m_entity_manager.addComponentType(entity, m_component_manager.getComponentType<T>());
 }
@@ -166,7 +165,10 @@ template<typename... Args> Signature ECS::getSignature() const{
 }
 
 
-
+template<typename T> 
+size_t ECS::size() const{
+    return m_component_manager.size<T>();
+}
 
 template<typename FirstComp, typename... OtherComps> 
 View<FirstComp, OtherComps...> ECS::getView(){

@@ -26,6 +26,7 @@ public:
 
     template<typename T> T& getComponent(Entity entity);
     template<typename T> const T& getComponent(Entity entity) const;
+    template<typename T> size_t size() const;
 
     void destroyEntity(Entity entity);
 private:
@@ -126,4 +127,16 @@ std::shared_ptr<ComponentArray<T>> ComponentManager::getComponentArray() const{
     assert(m_component_types.find(typeName) != m_component_types.end() && "Component not registered before use.");
 
     return std::static_pointer_cast<ComponentArray<T>>(m_component_arrays.at(typeName));
+}
+template<typename T> 
+size_t ComponentManager::size() const{
+    return getComponentArray<T>()->size();
+}
+
+
+inline void ComponentManager::destroyEntity(Entity entity) {
+    for (auto const& pair : m_component_arrays) {
+        auto const& component = pair.second;
+        component->destroyEntity(entity);
+    }
 }

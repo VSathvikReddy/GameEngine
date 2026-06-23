@@ -14,12 +14,12 @@ class View {
     template<typename T> using Clean = std::remove_const_t<T>;
     template<typename T> using ReturnRef = std::conditional_t<std::is_const_v<T>, const std::remove_const_t<T>&, std::remove_const_t<T>&>;
 public:
-    View(const View&) = delete;
+    View(const View&) = delete;  // Do not save or store it
     View& operator=(const View&) = delete;
     View(View&&) = delete;
     View& operator=(View&&) = delete;
     
-    template<typename Func> void each(Func&& func);
+    template<typename Func> void each(Func&& func); // Do not add or remove components while iterating
 
     class Iterator{
     public:
