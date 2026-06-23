@@ -14,6 +14,11 @@ class View {
     template<typename T> using Clean = std::remove_const_t<T>;
     template<typename T> using ReturnRef = std::conditional_t<std::is_const_v<T>, const std::remove_const_t<T>&, std::remove_const_t<T>&>;
 public:
+    View(const View&) = delete;
+    View& operator=(const View&) = delete;
+    View(View&&) = delete;
+    View& operator=(View&&) = delete;
+    
     template<typename Func> void each(Func&& func);
 
     class Iterator{
