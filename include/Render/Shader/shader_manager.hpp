@@ -9,29 +9,36 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <cstdint>
 
-class Shader;
 using ShaderID = uint32_t;
 using ShaderGPUID = uint32_t;
+constexpr ShaderID ERROR_SHADER = 0;
 
 class ShaderManager {
 public:
     ShaderManager() noexcept;
     ~ShaderManager() noexcept;
 
-    // Copyin breaks the reference system
     ShaderManager(const ShaderManager& other) = delete;
     ShaderManager& operator=(const ShaderManager& other) = delete;
 
-    void loadShader(const std::filesystem::path& folder, std::string_view shaderName, std::string_view userDefines = "") noexcept;
 
-    [[nodiscard]] Shader getShader(const std::string& shaderName);
+    [[nodiscard]] ShaderID loadShader(const std::filesystem::path& folder, const std::string& shaderName, std::string_view userDefines = "") noexcept;
+
+
+    [[nodiscard]] ShaderID getShader(const std::string& shaderName) const;
+    void clear();
+    void use(ShaderID ID);
+    
+
     [[nodiscard]] uint32_t setUBOs(const std::string& name);
 
-    void clear();
-private:
-    friend class Shader;
 
+    template<typename T> void setUniform(ShaderID ID, const std::string&  name, const T& a) noexcept;
+    template<typename T> void setUniformUnsafe(ShaderID ID, const std::string&  name, const T& a) noexcept;
+
+private:
     struct ShaderData {
         ShaderGPUID programID = 0;
         std::unordered_map<std::string, Uniform> uniform_map;
@@ -40,35 +47,22 @@ private:
     std::unordered_map<std::string, ShaderID> string_to_shader_ID;
     std::vector<ShaderData> shader_data;
     
+    ShaderID active_shader_ID;
 
-    ShaderID active_shader_ID = 0;
-
-
-    void use(ShaderID ID);
-    
-    template<typename T> void setUniform(ShaderID ID, std::string_view name, const T& a) noexcept;
-    template<typename T> void setUniformUnsafe(ShaderID ID, std::string_view name, const T& a) noexcept;
-
-    std::unordered_map<std::string,uint32_t> registered_ubos;
+    std::unordered_map<std::string, uint32_t> registered_ubos;
     uint32_t available_ubo_slot = 0; // Needs to be called after loading all shaders
 
-    Uniform getUniform(ShaderID ID, std::string_view name);
-
-    static unsigned int createShader(GLenum type, const char* shaderSource, char* infoLog);
-    static unsigned int linkShaders(unsigned int vertexShader, unsigned int fragmentShader, char* infoLog);
+    Uniform getUniform(ShaderID ID, const std::string& name);
 };
 
 
-
-
-
-
 template<typename T>
-inline void ShaderManager::setUniform(ShaderID ID, std::string_view name, const T& a) noexcept{
+inline void ShaderManager::setUniform(ShaderID ID, const std::string& name, const T& a) noexcept {
     use(ID);
-    getUniform(ID,name).setValue(a);
+    this->getUniform(ID, name).setValue(a);
 }
+
 template<typename T> 
-inline void ShaderManager::setUniformUnsafe(ShaderID ID, std::string_view name, const T& a) noexcept{
-    getUniform(ID,name).setValue(a);
+inline void ShaderManager::setUniformUnsafe(ShaderID ID, const std::string&  name, const T& a) noexcept {
+    this->getUniform(ID, name).setValue(a);
 }

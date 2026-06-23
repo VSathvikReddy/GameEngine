@@ -1,5 +1,4 @@
 #include "Render/Texture/texture_manager.hpp"
-#include "Render/Texture/texture.hpp"
 
 #include <iostream>
 #include <cassert>
@@ -13,15 +12,23 @@ TextureManager::TextureManager() {
     initializeDefaultTexture();
 }
 
+// Delete ALL textures on the GPU including the default texture at index 0
 TextureManager::~TextureManager() {
-    // Delete ALL textures on the GPU including the default texture at index 0
     if (!m_gpu_texture_ids.empty()) {
         glDeleteTextures(static_cast<GLsizei>(m_gpu_texture_ids.size()), m_gpu_texture_ids.data());
     }
-    
-    m_textures_properties.clear();
-    m_gpu_texture_ids.clear();
-    m_name_to_ID.clear();
+}
+
+// Delete all game textures from the GPU (everything EXCEPT index 0)
+void TextureManager::clear() noexcept {
+    if (m_gpu_texture_ids.size() <= 1) return;
+    glDeleteTextures(static_cast<GLsizei>(this->m_gpu_texture_ids.size() - 1), &m_gpu_texture_ids[1]);
+
+    this->m_textures_properties.resize(1);
+    this->m_gpu_texture_ids.resize(1);
+
+    this->m_name_to_ID.clear();
+    this->m_name_to_ID["__fallback_error__"] = 0;
 }
 
 void TextureManager::initializeDefaultTexture() {
@@ -51,28 +58,11 @@ void TextureManager::initializeDefaultTexture() {
     m_name_to_ID["__fallback_error__"] = 0;
 }
 
-// =====================================================================
-// SMART CLEAR (Clears all loaded assets EXCEPT the default texture)
-// =====================================================================
-void TextureManager::clear() noexcept {
-    if (!master || master->m_gpu_texture_ids.size() <= 1) return;
-
-    // Delete all game textures from the GPU (everything EXCEPT index 0)
-    GLsizei textureCountToDelete = static_cast<GLsizei>(master->m_gpu_texture_ids.size() - 1);
-    glDeleteTextures(textureCountToDelete, &master->m_gpu_texture_ids[1]);
-
-    master->m_textures_properties.resize(1);
-    master->m_gpu_texture_ids.resize(1);
-
-    master->m_name_to_ID.clear();
-    master->m_name_to_ID["__fallback_error__"] = 0;
-}
-uint32_t TextureManager::loadInternal(std::string_view path) {
-    assert(master != nullptr && "TextureManager instance was never registered!");
+TextureID TextureManager::loadTexture(std::string_view path) {
 
     std::string key(path);
-    auto it = master->m_name_to_ID.find(key);
-    if (it != master->m_name_to_ID.end()) {
+    auto it = this->m_name_to_ID.find(key);
+    if (it != this->m_name_to_ID.end()) {
         return it->second;
     }
 
@@ -85,7 +75,7 @@ uint32_t TextureManager::loadInternal(std::string_view path) {
 
     if (!data){
         std::cerr << "Failed to load texture: " << path << std::endl;
-        return 0;
+        return ERROR_TEXTURE;
     }
 
     uint32_t gl_texture_id = 0;
@@ -124,13 +114,44 @@ uint32_t TextureManager::loadInternal(std::string_view path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // 4. Save data directly into our parallel columns
-    uint32_t assigned_id = static_cast<uint32_t>(master->m_gpu_texture_ids.size());
+    uint32_t assigned_id = static_cast<uint32_t>(this->m_gpu_texture_ids.size());
 
 
-    master->m_textures_properties.emplace_back(static_cast<uint32_t>(width),static_cast<uint32_t>(height));
-    master->m_gpu_texture_ids.push_back(gl_texture_id);
+    this->m_textures_properties.emplace_back(static_cast<uint32_t>(width),static_cast<uint32_t>(height));
+    this->m_gpu_texture_ids.push_back(gl_texture_id);
     
-    master->m_name_to_ID[key] = assigned_id;
+    this->m_name_to_ID[key] = assigned_id;
 
-    return assigned_id;
+    return (assigned_id);
+}
+
+uint32_t TextureManager::getWidth(TextureID id) const {
+#ifndef NDEBUG
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    return m_textures_properties[id].width;
+}
+
+uint32_t TextureManager::getHeight(TextureID id) const {
+#ifndef NDEBUG
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    return m_textures_properties[id].height;
+}
+
+void TextureManager::use(TextureID id, int slot) const{
+#ifndef NDEBUG // If we are NOT in a Release build
+    if (id >= m_gpu_texture_ids.size()) {
+        std::cerr << "[TextureManager] Warning: Invalid ID " << id << " requested. Using fallback.\n";
+        id = ERROR_TEXTURE; 
+    }
+#endif
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, m_gpu_texture_ids[id]);
 }

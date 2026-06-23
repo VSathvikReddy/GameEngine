@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Render/Texture/texture.hpp"
+// Work in Progress, restructure
+// #include "Render/Texture/texture.hpp"
 
 #include <GL/glew.h>
 
