@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 #include <glm/glm.hpp>
 #include "Geometry/vector3.hpp"
 #include "Geometry/vector2.hpp"
@@ -34,6 +36,7 @@ struct Uniform{
 
 inline Uniform::Uniform(unsigned int shader_ID, const char* name):
     ID(glGetUniformLocation(shader_ID, name)){
+    assert(ID != static_cast<unsigned int>(-1));
 }
 inline Uniform::Uniform(unsigned int location_ID):
         ID(location_ID){        

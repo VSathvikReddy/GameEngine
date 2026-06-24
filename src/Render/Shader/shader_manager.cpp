@@ -5,7 +5,7 @@
 
 ShaderManager::ShaderManager() noexcept {
     shader_data.emplace_back(); 
-    active_shader_ID = ERROR_SHADER; 
+    active_shader_ID = NO_SHADER; 
 }
 
 ShaderManager::~ShaderManager() noexcept{
@@ -37,7 +37,7 @@ inline Ubo bindUbo(ShaderGPUID targetProgramID, uint32_t targetBlockIndex, uint3
 
 Ubo ShaderManager::setUBO(const std::string& name){
     assert(registered_ubos.find(name) == registered_ubos.end() && "Same UBO being register again");
-    assert(available_global_ubo_slot < 14 && "Engine Error: Exhausted maximum hardware UBO slots when binding" );
+    assert(available_global_ubo_slot < GL_MAX_UNIFORM_BUFFER_BINDINGS && "Engine Error: Exhausted maximum hardware UBO slots when binding" );
     assert(!shader_data.empty() && "No shaders loaded yet, so unable to querry for the ubo details");
 
     ShaderGPUID targetProgramID = 0;

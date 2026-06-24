@@ -13,28 +13,7 @@ void Keyboard::EndFrame(){
     m_PreviousKeys = m_CurrentKeys;
 }
 
-bool Keyboard::isKeyHeld(Keyboard::Key key) const {
-    return m_CurrentKeys.test(static_cast<size_t>(key));
-}bool Keyboard::isKeyPressed(Keyboard::Key key) const {
-    int k = static_cast<int>(key);
-    return m_CurrentKeys.test(k) && !m_PreviousKeys.test(k);
-}bool Keyboard::isKeyReleased(Keyboard::Key key) const {
-    int k = static_cast<int>(key);
-    return !m_CurrentKeys.test(k) && m_PreviousKeys.test(k);
-}
-// void Keyboard::Subscribe(Key key, EventCallback callback) {
-//     m_Callbacks[key].push_back(callback);
-// }
 
-bool Keyboard::isKeyHeld(uint32_t id, KeyBind bind)  const {
-    return m_CurrentKeys.test(static_cast<size_t>(bind.find(id)));
-}bool Keyboard::isKeyPressed(uint32_t id, KeyBind bind)  const {
-    int k = static_cast<int>(bind.find(id));
-    return m_CurrentKeys.test(k) && !m_PreviousKeys.test(k);
-}bool Keyboard::isKeyReleased(uint32_t id, KeyBind bind)  const {
-    int k = static_cast<int>(bind.find(id));
-    return !m_CurrentKeys.test(k) && m_PreviousKeys.test(k);
-}
 
 
 
@@ -130,7 +109,7 @@ KeyBind::KeyBind(const char* file){
     }
 }
 
-Keyboard::Key KeyBind::find(uint32_t id){
+Keyboard::Key KeyBind::find(uint32_t id) const{
     auto ptr = this->bindings.find(id);
     if(ptr == bindings.end()){
         std::cerr<<"Unknow key Action\n";

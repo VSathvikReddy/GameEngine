@@ -5,6 +5,7 @@
 using ShaderID  = uint32_t;
 using ShaderGPUID = uint32_t;
 constexpr ShaderID ERROR_SHADER = 0;
+constexpr ShaderID NO_SHADER     = 0;
 
 
 using TextureID = uint32_t;

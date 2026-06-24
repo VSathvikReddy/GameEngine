@@ -65,7 +65,7 @@ private:
 
 inline Mouse::Coords Mouse::getPosition() const { return current; }
 inline Mouse::Coords Mouse::getDelta() const { return {current.x-previous.x,current.y - previous.y}; }
-
+inline bool Mouse::isActive() const{ return m_active;}
 inline double Mouse::getScrollX() const { return m_scrollX; }
 inline double Mouse::getScrollY() const { return m_scrollY; }
 

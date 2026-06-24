@@ -10,7 +10,6 @@ TimeD Clock::restart(){
 
     m_accumulatedTime = TimeD();
     m_lastsetTimeStamp = SteadyClock::now();
-    m_timescale = 1.0f;
     isPaused = false;
 
     return elapsed;

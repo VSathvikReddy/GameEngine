@@ -45,7 +45,7 @@ private:
     Window m_window;
 
     Clock clk;
-    TimeD dt;
+    TimeD dt;  // Lag free dt no able to implement so for now disabled
 
     GLFWwindow* m_native = nullptr;
 

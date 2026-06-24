@@ -72,7 +72,7 @@ inline ShaderID ShaderManager::getShader(const std::string& shaderName) const{
 
 inline void ShaderManager::clearActiveShader(){
     glUseProgram(0);
-    active_shader_ID = 0;
+    active_shader_ID = NO_SHADER;
 }
 
 inline void ShaderManager::activateShader(ShaderID ID){

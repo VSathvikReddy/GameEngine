@@ -1,10 +1,13 @@
 #pragma once
 
+#include <unordered_map>
+#include <string_view>
+
 class KeyBind{
 public:
     KeyBind(const char* file);
 
-    Keyboard::Key find(uint32_t id);
+    Keyboard::Key find(uint32_t id) const;
 
 
     constexpr static uint32_t ID(std::string_view str);
