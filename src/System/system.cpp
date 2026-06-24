@@ -28,7 +28,7 @@ void init_glew(){
         fprintf(stderr, "GLEW Initialization Error: %s\n", glewGetErrorString(GLsucess));
         exit(1);
     }
-    glEnable(GL_DEPTH_TEST);  
+    glEnable(GL_DEPTH_TEST);  // Should this be here, it should go to master renderer
 
     printf("%s\n",glGetString(GL_VERSION));
 }
@@ -55,28 +55,13 @@ WindowContext::WindowContext(uint32_t width, uint32_t height, const char* title)
 }
 
 WindowContext::~WindowContext(){
-
     if(m_native){
         glfwDestroyWindow(m_native);
     }
     glfwTerminate();
 }
     
-const Mouse& WindowContext::getMouse() const{
-    return m_mouse;
-}
-const Keyboard& WindowContext::getKeyboard() const{
-    return m_keyboard;
-}
-const Window& WindowContext::getWindow() const{
-    return m_window;
-}
-const TimeD& WindowContext::getDt() const{
-    return dt;
-}
-const Clock& WindowContext::getClock() const{
-    return clk;
-}
+
 
 
 
@@ -84,13 +69,15 @@ void WindowContext::startFrame(){
     glfwPollEvents();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_mouse.startFrame();
 }
 void WindowContext::endFrame(){
     glfwSwapBuffers(m_native);
 
 
     m_keyboard.EndFrame();
-    m_mouse.EndFrame();
+    m_mouse.endFrame();
 }
 bool WindowContext::isOpen(){
     return !glfwWindowShouldClose(m_native);

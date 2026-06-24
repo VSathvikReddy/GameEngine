@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <cassert>
 
 void Window::setCallbacks(GLFWwindow* native){
     glfwSetFramebufferSizeCallback(native, GLFW_framebuffer_size_callback);
@@ -13,32 +14,46 @@ void Window::setCallbacks(GLFWwindow* native){
 }
 
 void Window::update_size(GLFWwindow* native){
-    int winWidth = 0;
-    int winHeight = 0;
-    glfwGetWindowSize(native, &winWidth, &winHeight);
+    int width = 0;
+    int height = 0;
 
-    // Since this is a normal member function, you can access m_cache_size directly!
-    m_cache_size.width = winWidth;
-    m_cache_size.height = winHeight;
+    glfwGetWindowSize(native, &width, &height);
+    assert( (width >= 0  && height >=0 )&& "OpenGL returned a negative Window size!");
+    m_window_size = Window::Size{static_cast<uint32_t>(width),static_cast<uint32_t>(height)};
+
+    glfwGetFramebufferSize(native, &width, &height);
+    assert( (width >= 0  && height >=0 )&& "OpenGL returned a negative FrameBuffer size!");
+    m_frame_buffer_size = Window::Size{static_cast<uint32_t>(width),static_cast<uint32_t>(height)};
 }
 
-Window::Size Window::getSize() const{
-    return m_cache_size;
+Window::Size Window::getWindowSize() const{
+    return m_window_size;
+}
+
+Window::Size Window::getFrameBufferSize()const{
+    return m_frame_buffer_size;
 }
 
 
 void Window::GLFW_framebuffer_size_callback( [[maybe_unused]] GLFWwindow* window, int width, int height){
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}
-void Window::GLFW_window_size_callback(GLFWwindow* window, int width, int height) {
     WindowContext* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+
+
     if (context) {
         Window& instance = context->m_window;
         
-        instance.m_cache_size.width = width;
-        instance.m_cache_size.height = height;
+        instance.m_frame_buffer_size.width = width;
+        instance.m_frame_buffer_size.height = height;
+    }
+}
+void Window::GLFW_window_size_callback(GLFWwindow* window, int width, int height) {
+    WindowContext* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+    
+    if (context) {
+        Window& instance = context->m_window;
+        
+        instance.m_window_size.width = width;
+        instance.m_window_size.height = height;
     }
 }
 void Window::GLFW_window_close_callback([[maybe_unused]] GLFWwindow* window){

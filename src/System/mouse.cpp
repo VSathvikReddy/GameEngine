@@ -2,47 +2,33 @@
 #include "System/system.hpp"
 #include <GLFW/glfw3.h>
 
-void Mouse::EndFrame() {
-    // Sync current buttons to previous for edge detection
+void Mouse::endFrame() {
     m_PreviousButtons = m_CurrentButtons;
     previous = current;
+    m_cursor_border_crossed = false;
     
     m_scrollX = 0.0;
     m_scrollY = 0.0;
 }
-
-
-
-
-
-Mouse::Coords Mouse::getPosition() const { return current; }
-Mouse::Coords Mouse::getDelta() const { return {current.x-previous.x,current.y - previous.y}; }
-
-double Mouse::getScrollX() const { return m_scrollX; }
-double Mouse::getScrollY() const { return m_scrollY; }
-
-
-
-
-bool Mouse::isButtonHeld(Mouse::Button button) const {
-    return m_CurrentButtons.test(static_cast<size_t>(button));
+void Mouse::startFrame(){
+    if(m_cursor_border_crossed) {
+        previous = current;
+    }
 }
 
-bool Mouse::isButtonPressed(Mouse::Button button) const {
-    size_t b = static_cast<size_t>(button);
-    return m_CurrentButtons.test(b) && !m_PreviousButtons.test(b);
-}
 
-bool Mouse::isButtonReleased(Mouse::Button button) const {
-    size_t b = static_cast<size_t>(button);
-    return !m_CurrentButtons.test(b) && m_PreviousButtons.test(b);
-}
+
 
 void Mouse::setCallbacks(GLFWwindow* window) {
     glfwSetMouseButtonCallback(window, Mouse::GLFW_mouse_button_callback);
     glfwSetCursorPosCallback(window, Mouse::GLFW_cursor_position_callback);
     glfwSetScrollCallback(window, Mouse::GLFW_scroll_callback);
+    glfwSetCursorEnterCallback(window, Mouse::GLFW_cursor_enter_callback);
+
+    glfwGetCursorPos(window, &current.x, &current.y);
+    m_cursor_border_crossed = true;
 }
+
 
 // --- Static GLFW Callback Bridges ---
 
@@ -58,22 +44,26 @@ void Mouse::GLFW_mouse_button_callback(GLFWwindow* window, int button, int actio
     }
 }
 
+
 void Mouse::GLFW_cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    Mouse& instance = (static_cast<WindowContext*>(glfwGetWindowUserPointer(window))->m_mouse);
+    WindowContext* instance = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+    if(!instance){ return;}
 
-    if (instance.m_firstMouse) {
-        instance.previous.x = xpos;
-        instance.previous.y = ypos;
-        instance.m_firstMouse = false;
-    }
-    
-
-    instance.current.x = xpos;
-    instance.current.y = ypos;
+    instance->m_mouse.current.x = xpos;
+    instance->m_mouse.current.y = ypos;
 }
+void Mouse::GLFW_cursor_enter_callback(GLFWwindow* window, int entered) {
+    WindowContext* instance = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+    if(!instance) { return;}
 
+    instance->m_mouse.m_active = (entered == GLFW_TRUE);
+    instance->m_mouse.m_cursor_border_crossed = true;
+}
 void Mouse::GLFW_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    Mouse& instance = (static_cast<WindowContext*>(glfwGetWindowUserPointer(window))->m_mouse);
-    instance.m_scrollX += xoffset;
-    instance.m_scrollY += yoffset;
+    WindowContext* instance = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+
+    if(!instance){ return;}
+
+    instance->m_mouse.m_scrollX += xoffset;
+    instance->m_mouse.m_scrollY += yoffset;
 }

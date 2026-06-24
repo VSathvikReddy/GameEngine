@@ -51,3 +51,23 @@ private:
 
     static void GLFW_error_callback(int error, const char* description);
 };
+
+
+
+
+
+inline const Mouse& WindowContext::getMouse() const{
+    return m_mouse;
+}
+inline const Keyboard& WindowContext::getKeyboard() const{
+    return m_keyboard;
+}
+inline const Window& WindowContext::getWindow() const{
+    return m_window;
+}
+inline const TimeD& WindowContext::getDt() const{
+    return dt;
+}
+inline const Clock& WindowContext::getClock() const{
+    return clk;
+}

@@ -17,9 +17,11 @@ public:
     Window() = default;
 
     void setCallbacks(GLFWwindow* native);
-    Size getSize() const;
+    Size getFrameBufferSize() const;
+    Size getWindowSize() const;
 private:
-    Size m_cache_size;
+    Size m_frame_buffer_size;
+    Size m_window_size;
     void update_size(GLFWwindow* native);
 
     static void GLFW_framebuffer_size_callback(GLFWwindow* window, int width, int height); 

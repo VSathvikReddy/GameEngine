@@ -19,18 +19,8 @@ public:
     [[nodiscard]] uint32_t getTextureWidth(TextureID id) const;
     [[nodiscard]] uint32_t getTextureHeight(TextureID id) const;
 
-    template<typename T> IRenderSystem* createRenderSystem();
 
 private:
     ShaderManager  m_shader_manager;
     TextureManager m_texture_manager;
-};
-
-
-class IRenderSystem{
-public:
-    virtual void draw();
-    void setup();
-private:
-    ShaderID m_required_shader;
 };
