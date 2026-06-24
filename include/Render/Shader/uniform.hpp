@@ -23,6 +23,7 @@
 struct Uniform{
     const unsigned int ID=0;
 
+
     Uniform(unsigned int shader_ID, const char* name);
     Uniform(unsigned int location_ID);
 

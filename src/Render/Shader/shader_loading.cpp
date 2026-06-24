@@ -90,8 +90,8 @@ ShaderID ShaderManager::loadShader(const std::filesystem::path& folder, const st
 
     assertShaderFilesExist(vertFilePath, fragFilePath);
 
-    std::string vertexShaderSource = PreProcess(vertFilePath.string().c_str(), std::string(userDefines));
-    std::string fragmentShaderSource = PreProcess(fragFilePath.string().c_str(), std::string(userDefines));
+    std::string vertexShaderSource = PreProcess(vertFilePath.string(), std::string(userDefines));
+    std::string fragmentShaderSource = PreProcess(fragFilePath.string(), std::string(userDefines));
 
     assertShaderPreProcessSucess(vertexShaderSource, fragmentShaderSource, shaderName); if (vertexShaderSource.empty() || fragmentShaderSource.empty()) {return ERROR_SHADER;}
 
@@ -127,7 +127,7 @@ ShaderID ShaderManager::loadShader(const std::filesystem::path& folder, const st
     for(const auto& itr: registered_ubos){
         unsigned int idx = glGetUniformBlockIndex(ID, itr.first.c_str());
         if (idx != GL_INVALID_INDEX) {
-            glUniformBlockBinding(ID, idx, itr.second);
+            glUniformBlockBinding(ID, idx, itr.second.globalSlot);
         }
     }
     return newEngineID;

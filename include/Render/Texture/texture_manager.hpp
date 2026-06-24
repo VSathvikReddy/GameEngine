@@ -7,8 +7,7 @@
 #include <cstdint>
 #include <iostream>
 
-using TextureID = uint32_t;
-constexpr TextureID ERROR_TEXTURE = 0;
+#include "Render/gl_alias.hpp"
 
 class TextureManager {
 public:

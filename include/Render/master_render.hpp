@@ -19,26 +19,18 @@ public:
     [[nodiscard]] uint32_t getTextureWidth(TextureID id) const;
     [[nodiscard]] uint32_t getTextureHeight(TextureID id) const;
 
+    template<typename T> IRenderSystem* createRenderSystem();
+
 private:
     ShaderManager  m_shader_manager;
     TextureManager m_texture_manager;
 };
 
 
-inline MasterRenderer::MasterRenderer(): m_texture_manager(), m_shader_manager(){}
-
-inline void MasterRenderer::clearTextures() noexcept {
-    m_texture_manager.clear();
-}
-
-inline TextureID MasterRenderer::loadTexture(const std::string& path) {
-    return m_texture_manager.loadTexture(path);
-}
-
-inline uint32_t MasterRenderer::getTextureWidth(TextureID id) const {
-    return m_texture_manager.getWidth(id);
-}
-
-inline uint32_t MasterRenderer::getTextureHeight(TextureID id) const {
-    return m_texture_manager.getHeight(id);
-}
+class IRenderSystem{
+public:
+    virtual void draw();
+    void setup();
+private:
+    ShaderID m_required_shader;
+};

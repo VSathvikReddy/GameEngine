@@ -10,9 +10,13 @@
 #include <cstdint>
 #include <iostream>
 
-using ShaderID = uint32_t;
-using ShaderGPUID = uint32_t;
-constexpr ShaderID ERROR_SHADER = 0;
+#include "Render/gl_alias.hpp"
+
+struct Ubo{
+    const UboID bufferID;
+    const GLint size;
+    const uint32_t globalSlot;
+};
 
 class ShaderManager {
 public:
@@ -27,15 +31,14 @@ public:
 
 
     [[nodiscard]] ShaderID getShader(const std::string& shaderName) const;
-    void clear();
-    void use(ShaderID ID);
+    void clearActiveShader();
+    void activateShader(ShaderID ID);
     
 
-    [[nodiscard]] uint32_t setUBOs(const std::string& name);
+    [[nodiscard]] Ubo setUBO(const std::string& name);
 
 
-    template<typename T> void setUniform(ShaderID ID, const std::string&  name, const T& a) noexcept;
-    template<typename T> void setUniformUnsafe(ShaderID ID, const std::string&  name, const T& a) noexcept;
+    Uniform getUniform(ShaderID ID, const std::string& name); // Please dont store and use
 
 private:
     struct ShaderData {
@@ -48,39 +51,11 @@ private:
     
     ShaderID active_shader_ID;
 
-    std::unordered_map<std::string, uint32_t> registered_ubos;
-    uint32_t available_ubo_slot = 0; // Needs to be called after loading all shaders
+    std::unordered_map<std::string, Ubo> registered_ubos;
+    uint32_t available_global_ubo_slot = 0;
 
-    Uniform getUniform(ShaderID ID, const std::string& name);
+    
 };
-
-
-template<typename T>
-inline void ShaderManager::setUniform(ShaderID ID, const std::string& name, const T& a) noexcept {
-    use(ID);
-    this->getUniform(ID, name).setValue(a);
-}
-
-template<typename T> 
-inline void ShaderManager::setUniformUnsafe(ShaderID ID, const std::string&  name, const T& a) noexcept {
-    this->getUniform(ID, name).setValue(a);
-}
-
-
-
-inline void ShaderManager::clear(){
-    glUseProgram(0);
-    active_shader_ID = 0;
-}
-
-inline void ShaderManager::use(ShaderID ID){
-    assert(ID < shader_data.size() && "Out of bounds ShaderID execution request!");
-    assert(ID != ERROR_SHADER && "ERROR_SHADER being used");
-    if(ID == active_shader_ID ) return;
-
-    glUseProgram(shader_data.at(ID).programID);
-    active_shader_ID = ID;
-}
 
 
 inline ShaderID ShaderManager::getShader(const std::string& shaderName) const{
@@ -93,3 +68,20 @@ inline ShaderID ShaderManager::getShader(const std::string& shaderName) const{
 #endif
     return ERROR_SHADER;
 }
+
+
+inline void ShaderManager::clearActiveShader(){
+    glUseProgram(0);
+    active_shader_ID = 0;
+}
+
+inline void ShaderManager::activateShader(ShaderID ID){
+    assert(ID < shader_data.size() && "Out of bounds ShaderID execution request!");
+    assert(ID != ERROR_SHADER && "ERROR_SHADER being used");
+    if(ID == active_shader_ID ) return;
+
+    glUseProgram(shader_data.at(ID).programID);
+    active_shader_ID = ID;
+}
+
+
