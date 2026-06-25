@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "Render/gl_alias.hpp"
+#include "Render/Buffer/gl_alias.hpp"
 
 class TextureManager {
 public:
