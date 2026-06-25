@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Render/Shader/uniform.hpp"
+#include "Render/Buffer/uniform.hpp"
+#include "Render/Buffer/gl_alias.hpp"
 
 #include <filesystem>
 #include <string_view>
@@ -10,7 +11,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "Render/gl_alias.hpp"
+
 
 struct Ubo{
     const UboID bufferID;
@@ -53,6 +54,7 @@ private:
 
     std::unordered_map<std::string, Ubo> registered_ubos;
     uint32_t available_global_ubo_slot = 0;
+    uint32_t m_max_ubo_slots = 36;
 
     
 };

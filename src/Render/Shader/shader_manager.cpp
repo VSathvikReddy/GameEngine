@@ -6,6 +6,10 @@
 ShaderManager::ShaderManager() noexcept {
     shader_data.emplace_back(); 
     active_shader_ID = NO_SHADER; 
+
+    GLint maxSlots = 0;
+    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxSlots);
+    m_max_ubo_slots = static_cast<uint32_t>(maxSlots);
 }
 
 ShaderManager::~ShaderManager() noexcept{

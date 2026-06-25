@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/Shader/shader_manager.hpp"
-#include "Render/Texture/texture_manager.hpp"
+#include "Render/Buffer/shader_manager.hpp"
+#include "Render/Buffer/texture_manager.hpp"
 #include <string_view>
 #include <cstdint>
 
